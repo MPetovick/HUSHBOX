@@ -1,29 +1,34 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QR Scanner</title>
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HushBox - Secure Messaging with QR</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="container">
-    <h1>QR Scanner</h1>
-    <div id="video-container">
-      <video id="video" autoplay></video>
-      <div id="scan-area"></div>
+    <div class="container">
+        <h1>HushBox</h1>
+        <div id="chat-container">
+            <div id="messages"></div>
+            <div class="input-area">
+                <input type="text" id="passphrase" placeholder="Enter your passphrase" required>
+                <input type="text" id="message-input" placeholder="Write a message...">
+                <button id="send-button">Send and Generate QR</button>
+            </div>
+            <div id="qr-container">
+                <h3>Generated QR:</h3>
+                <canvas id="qr-canvas"></canvas>
+            </div>
+            <div class="decode-area">
+                <h3>Upload QR to Decrypt:</h3>
+                <input type="file" id="qr-upload" accept="image/*">
+                <button id="decode-button">Decrypt QR</button>
+            </div>
+        </div>
     </div>
-    <div id="controls">
-      <button id="start-button">Start Scanning</button>
-      <button id="stop-button" disabled>Stop Scanning</button>
-      <select id="camera-select"></select>
-    </div>
-    <div id="output">
-      <p><strong>Scan result:</strong> <span id="result">Waiting...</span></p>
-      <p id="status">Status: Idle</p>
-    </div>
-  </div>
-  <script src="https://cdn.jsdelivr.net/npm/@zxing/library@latest"></script>
-  <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
