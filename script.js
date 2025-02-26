@@ -5,6 +5,7 @@ const sendButton = document.getElementById('send-button');
 const qrCanvas = document.getElementById('qr-canvas');
 const qrUpload = document.getElementById('qr-upload');
 const decodeButton = document.getElementById('decode-button');
+const downloadButton = document.getElementById('download-button');
 
 
 function stringToArrayBuffer(str) {
@@ -163,6 +164,18 @@ decodeButton.addEventListener('click', () => {
     reader.readAsDataURL(file);
 });
 
+function downloadQR() {
+    const canvas = qrCanvas;
+    const dataURL = canvas.toDataURL('image/png'); 
+    const link = document.createElement('a');
+    link.href = dataURL;
+    link.download = 'qr_code.png'; 
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link); 
+}
+
+downloadButton.addEventListener('click', downloadQR);
 
 messageInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') sendButton.click();
