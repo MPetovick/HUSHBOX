@@ -65,5 +65,5 @@ npm start
 *Requires Node.js v16+ and a modern browser.*  
 
 ---  
-📜 **License**: MIT | 🔗 **SHUMZU**: [GitHub](https://github.com/MPetovick/SHUMZU)  
+📜 **License**: MIT | 🔗 **powered by SHUMZU**: [GitHub](https://github.com/MPetovick/SHUMZU)  
 ``` 
