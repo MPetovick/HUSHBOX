@@ -164,6 +164,14 @@ decodeButton.addEventListener('click', () => {
     reader.readAsDataURL(file);
 });
 
+// Función para generar el QR (sin modificar visibilidad)
+async function generateQR(encryptedMessage) {
+    QRCode.toCanvas(qrCanvas, encryptedMessage, { width: 200 }, (error) => {
+        if (error) console.error('Error generating QR:', error);
+    });
+}
+
+// Función para descargar el QR (sin modificar visibilidad)
 function downloadQR() {
     const canvas = qrCanvas;
     const dataURL = canvas.toDataURL('image/png'); 
@@ -175,8 +183,26 @@ function downloadQR() {
     document.body.removeChild(link); 
 }
 
-downloadButton.addEventListener('click', downloadQR);
+// Evento del botón Send (sin manejar visibilidad del botón de descarga)
+sendButton.addEventListener('click', async () => {
+    const message = messageInput.value.trim();
+    const passphrase = passphraseInput.value.trim();
 
-messageInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') sendButton.click();
+    if (!message || !passphrase) {
+        alert('Please enter a message and passphrase.');
+        return;
+    }
+
+    try {
+        const encryptedMessage = await encryptMessage(message, passphrase);
+        displayMessage(encryptedMessage, true, true);
+        await generateQR(encryptedMessage);
+        messageInput.value = '';
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error processing the message.');
+    }
 });
+
+// Evento del botón de descarga
+downloadButton.addEventListener('click', downloadQR);
