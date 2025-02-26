@@ -1,79 +1,169 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const videoElement = document.getElementById("video");
-  const resultElement = document.getElementById("result");
-  const statusElement = document.getElementById("status");
-  const startButton = document.getElementById("start-button");
-  const stopButton = document.getElementById("stop-button");
-  const cameraSelect = document.getElementById("camera-select");
+const messagesDiv = document.getElementById('messages');
+const passphraseInput = document.getElementById('passphrase');
+const messageInput = document.getElementById('message-input');
+const sendButton = document.getElementById('send-button');
+const qrCanvas = document.getElementById('qr-canvas');
+const qrUpload = document.getElementById('qr-upload');
+const decodeButton = document.getElementById('decode-button');
 
-  const codeReader = new ZXing.BrowserQRCodeReader();
-  let activeDeviceId = null;
 
-  async function listCameras() {
-    const devices = await codeReader.listVideoInputDevices();
-    cameraSelect.innerHTML = "";
+function stringToArrayBuffer(str) {
+    const encoder = new TextEncoder();
+    return encoder.encode(str);
+}
 
-    devices.forEach((device, index) => {
-      const option = document.createElement("option");
-      option.value = device.deviceId;
-      option.text = device.label || `Camera ${index + 1}`;
-      cameraSelect.appendChild(option);
+
+function arrayBufferToString(buffer) {
+    const decoder = new TextDecoder();
+    return decoder.decode(buffer);
+}
+
+
+async function deriveKey(passphrase, salt) {
+    const keyMaterial = await crypto.subtle.importKey(
+        'raw',
+        stringToArrayBuffer(passphrase),
+        { name: 'PBKDF2' },
+        false,
+        ['deriveBits', 'deriveKey']
+    );
+    return crypto.subtle.deriveKey(
+        {
+            name: 'PBKDF2',
+            salt: salt,
+            iterations: 100000,
+            hash: 'SHA-256'
+        },
+        keyMaterial,
+        { name: 'AES-GCM', length: 256 },
+        true,
+        ['encrypt', 'decrypt']
+    );
+}
+
+
+async function encryptMessage(message, passphrase) {
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const key = await deriveKey(passphrase, salt);
+
+    const encrypted = await crypto.subtle.encrypt(
+        {
+            name: 'AES-GCM',
+            iv: iv
+        },
+        key,
+        stringToArrayBuffer(message)
+    );
+
+    const result = new Uint8Array(salt.length + iv.length + encrypted.byteLength);
+    result.set(salt, 0);
+    result.set(iv, salt.length);
+    result.set(new Uint8Array(encrypted), salt.length + iv.length);
+
+    return btoa(String.fromCharCode(...result));
+}
+
+
+async function decryptMessage(encryptedBase64, passphrase) {
+    const encryptedData = Uint8Array.from(atob(encryptedBase64), c => c.charCodeAt(0));
+    const salt = encryptedData.slice(0, 16);
+    const iv = encryptedData.slice(16, 28);
+    const ciphertext = encryptedData.slice(28);
+
+    const key = await deriveKey(passphrase, salt);
+
+    const decrypted = await crypto.subtle.decrypt(
+        {
+            name: 'AES-GCM',
+            iv: iv
+        },
+        key,
+        ciphertext
+    );
+
+    return arrayBufferToString(decrypted);
+}
+
+
+function displayMessage(message, isSent, encrypted = false) {
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message');
+    if (isSent) messageElement.classList.add('sent');
+    messageElement.textContent = encrypted ? `[Encrypted: ${message}]` : message;
+    messagesDiv.appendChild(messageElement);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+
+async function generateQR(encryptedMessage) {
+    QRCode.toCanvas(qrCanvas, encryptedMessage, { width: 200 }, (error) => {
+        if (error) console.error('Error generating QR:', error);
     });
+}
 
-    if (devices.length > 0) {
-      activeDeviceId = devices[0].deviceId;
-    } else {
-      alert("No cameras found.");
+
+sendButton.addEventListener('click', async () => {
+    const message = messageInput.value.trim();
+    const passphrase = passphraseInput.value.trim();
+
+    if (!message || !passphrase) {
+        alert('Please enter a message and passphrase.');
+        return;
     }
-  }
 
-  async function startScanning() {
     try {
-      statusElement.textContent = "Status: Scanning...";
-      startButton.disabled = true;
-      stopButton.disabled = false;
-      cameraSelect.disabled = true;
-
-      await codeReader.decodeFromVideoDevice(activeDeviceId, videoElement, (result, err) => {
-        if (result) {
-          resultElement.textContent = result.text;
-          statusElement.textContent = "Status: QR Code Detected!";
-          console.log("QR Code Result:", result.text);
-
-          // Stop scanning after detection
-          stopScanning();
-        }
-
-        if (err && !(err instanceof ZXing.NotFoundException)) {
-          console.error("QR Code Error:", err);
-        }
-      });
-    } catch (err) {
-      console.error("Error starting scan:", err);
-      alert("Unable to access the camera. Please check your permissions.");
-      resetUI();
+        const encryptedMessage = await encryptMessage(message, passphrase);
+        displayMessage(encryptedMessage, true, true);
+        await generateQR(encryptedMessage);
+        messageInput.value = '';
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error processing the message.');
     }
-  }
+});
 
-  function stopScanning() {
-    codeReader.reset();
-    resetUI();
-    statusElement.textContent = "Status: Idle";
-  }
 
-  function resetUI() {
-    startButton.disabled = false;
-    stopButton.disabled = true;
-    cameraSelect.disabled = false;
-  }
+decodeButton.addEventListener('click', () => {
+    const file = qrUpload.files[0];
+    const passphrase = passphraseInput.value.trim();
 
-  // Event Listeners
-  startButton.addEventListener("click", startScanning);
-  stopButton.addEventListener("click", stopScanning);
-  cameraSelect.addEventListener("change", (event) => {
-    activeDeviceId = event.target.value;
-  });
+    if (!file || !passphrase) {
+        alert('Please upload a QR and provide a passphrase.');
+        return;
+    }
 
-  // Initialize camera list
-  listCameras();
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+            if (code) {
+                decryptMessage(code.data, passphrase)
+                    .then((decrypted) => {
+                        displayMessage(decrypted, false);
+                    })
+                    .catch((error) => {
+                        console.error('Error desencriptando QR:', error);
+                        alert('The QR could not be decrypted. Passphrase correct?');
+                    });
+            } else {
+                alert('No valid QR was detected in the image.');
+            }
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+});
+
+
+messageInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendButton.click();
 });
