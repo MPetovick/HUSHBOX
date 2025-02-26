@@ -9,8 +9,8 @@ HUSHBOX lets you send self-destructing encrypted messages through QR codes.
 
 ---
 
-## 🚀 **Features**  
-- 🔐 **AES-256 Encryption** (powered by SHUMZU).  
+## 🚀 **Features** (powered by SHUMZU)
+- 🔐 **AES-256 Encryption**.  
 - 📲 **QR Generation**: Messages vanish after scanning or closing the tab.  
 - 🌐 **Zero Server Storage**: Everything happens in your browser.  
 - 🧨 **Self-Destruct**: Messages disappear after decryption.  
@@ -24,7 +24,7 @@ HUSHBOX lets you send self-destructing encrypted messages through QR codes.
    - Generate an encrypted QR.  
 
 2. **Receiver**:  
-   - Scan the QR with any scanner.  
+   - Add QR  
    - Enter the password to decrypt.  
 
 ---
@@ -46,21 +46,9 @@ HUSHBOX lets you send self-destructing encrypted messages through QR codes.
 
 ## 🚨 **Why HUSHBOX?**  
 - Quick, fun, and private sharing for **non-critical data**.  
-- Ideal for passwords, hints, or playful notes.  
+- Ideal for passwords, hints, crypto words wallet or playful notes.  
 
 ---
-
-🔗 **Get Started**:  
-```bash
-# Clone the repo
-git clone https://github.com/MPetovick/HUSHBOX.git
-
-# Install dependencies
-npm install
-
-# Run locally
-npm start
-```
 
 *Requires Node.js v16+ and a modern browser.*  
 
