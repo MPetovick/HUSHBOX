@@ -131,3 +131,18 @@ h1 {
 #decode-button:hover {
     background-color: #00b386;
 }
+
+#download-button {
+    padding: 10px 20px;
+    background-color: #00cc99;
+    border: none;
+    border-radius: 5px;
+    color: #1a1a1a;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 10px;
+}
+
+#download-button:hover {
+    background-color: #00b386;
+}
