@@ -5,8 +5,7 @@
 ---
 
 ✨ **Turn Secrets into Scannable Art**  
-HUSHBOX lets you send self-destructing encrypted messages through QR codes. Built on **[SHUMZU](https://github.com/MPetovick/SHUMZU)**, a client-side encryption library.  
-
+HUSHBOX lets you send self-destructing encrypted messages through QR codes. 
 
 ---
 
@@ -44,7 +43,6 @@ HUSHBOX lets you send self-destructing encrypted messages through QR codes. Buil
 - **Close the Tab**: Ensures message destruction.  
 
 ---
-
 
 ## 🚨 **Why HUSHBOX?**  
 - Quick, fun, and private sharing for **non-critical data**.  
