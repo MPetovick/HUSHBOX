@@ -30,7 +30,7 @@ HUSHBOX lets you send self-destructing encrypted messages through QR codes.
 ---
 
 ## ⚠️ **Limitations**  
-- ❗ Short messages only (~500 characters).  
+- ❗ Short messages only (~200 characters).  
 - 📉 QR complexity may affect scanability.  
 - 🌐 Requires internet (no offline support).  
 - ⏳ Temporary storage: Trust your browser!  
