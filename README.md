@@ -39,7 +39,6 @@ HUSHBOX lets you send self-destructing encrypted messages through QR codes.
 
 ## 🔑 **Security Tips**  
 - **Password Strength is Key**: `h3Ll0-W0rld!` > `password123`.  
-- **Casual Use Only**: Not for top-secret intel.  
 - **Close the Tab**: Ensures message destruction.  
 
 ---
