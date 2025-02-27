@@ -49,7 +49,7 @@ HUSHBOX lets you send self-destructing encrypted messages through QR codes.
 
 ---
 
-*Requires Node.js v16+ and a modern browser.*  
+*Requires a modern browser (PC/MOBILE).*  
 
 ---  
 🔗 **powered by SHUMZU**: https://github.com/MPetovick/SHUMZU  
