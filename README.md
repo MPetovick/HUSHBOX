@@ -44,7 +44,7 @@ HUSHBOX lets you send self-destructing encrypted messages through QR codes.
 ---
 
 ## 🚨 **Why HUSHBOX?**  
-- Quick, fun, and private sharing for **non-critical data**.  
+- Quick, fun, and private sharing data.  
 - Ideal for passwords, hints, crypto words wallet or playful notes.  
 
 ---
