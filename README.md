@@ -51,7 +51,8 @@ HUSHBOX lets you send self-destructing encrypted messages through QR codes.
 *Requires a modern browser (PC/MOBILE).*  
 
 ---  
-🔗 **powered by SHUMZU**: https://github.com/MPetovick/SHUMZU  
+🔗 **powered by SHUMZU**: https://github.com/MPetovick/SHUMZU
+
 ---
 TON:
 `UQAbBeF6AOYu1mdDYpDboUDD8BZeZtJocMEd9M3HDYxvxWEM`
