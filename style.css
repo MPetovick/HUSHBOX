@@ -1,148 +1,222 @@
+:root {
+    --primary-color: #00cc99;
+    --secondary-color: #2a2a2a;
+    --background-gradient: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    --text-color: #e0e0e0;
+    --success-color: #00cc99;
+    --error-color: #ff4d4d;
+    --section-bg: rgba(42, 42, 42, 0.95);
+}
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', system-ui, sans-serif;
 }
 
 body {
-    background-color: #1a1a1a;
-    color: #e0e0e0;
+    background: var(--background-gradient);
+    color: var(--text-color);
+    min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
+    line-height: 1.6;
 }
 
 .container {
     width: 100%;
-    max-width: 600px;
-    padding: 20px;
+    max-width: 1200px;
+    padding: 2rem;
 }
 
-h1 {
+.logo {
     text-align: center;
-    color: #00cc99;
-    margin-bottom: 20px;
+    color: var(--primary-color);
+    margin-bottom: 2rem;
+    font-size: 2.8rem;
+    letter-spacing: 3px;
+    text-shadow: 0 2px 8px rgba(0, 204, 153, 0.4);
 }
 
-#chat-container {
-    background-color: #2a2a2a;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+.main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: 2rem;
 }
 
-#messages {
-    height: 200px;
-    overflow-y: auto;
-    margin-bottom: 20px;
-    padding: 10px;
-    border: 1px solid #3a3a3a;
-    border-radius: 5px;
+.section {
+    background: var(--section-bg);
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
 }
 
-.message {
-    padding: 10px;
-    margin: 5px 0;
-    border-radius: 5px;
-    background-color: #3a3a3a;
-    word-wrap: break-word;
+.input-group {
+    position: relative;
+    margin-bottom: 1.5rem;
 }
 
-.message.sent {
-    background-color: #00cc99;
-    color: #1a1a1a;
-    text-align: right;
-}
-
-.input-area {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
+.input-group .icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(160, 160, 160, 0.6);
+    font-size: 1.2rem;
 }
 
 #passphrase, #message-input {
-    flex: 1;
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    background-color: #3a3a3a;
-    color: #e0e0e0;
+    width: 100%;
+    padding: 1rem 2.5rem 1rem 1rem;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    background: rgba(58, 58, 58, 0.8);
+    color: var(--text-color);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+#message-input {
+    resize: none;
+    min-height: 100px;
+}
+
+#passphrase:focus, #message-input:focus {
     outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 12px rgba(0, 204, 153, 0.3);
 }
 
-#passphrase::placeholder, #message-input::placeholder {
-    color: #a0a0a0;
-}
-
-#send-button {
-    padding: 10px 20px;
-    background-color: #00cc99;
+.btn-primary {
+    width: 100%;
+    padding: 1.2rem;
+    background: var(--primary-color);
     border: none;
-    border-radius: 5px;
+    border-radius: 10px;
     color: #1a1a1a;
+    font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    font-size: 1.1rem;
 }
 
-#send-button:hover {
-    background-color: #00b386;
+.btn-primary:hover {
+    background: #00b386;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 204, 153, 0.4);
 }
 
+/* Sección QR */
 #qr-container {
-    margin: 20px 0;
+    margin-top: 2rem;
     text-align: center;
+    animation: fadeIn 0.5s ease-out;
 }
 
-#qr-container h3 {
-    color: #00cc99;
-    margin-bottom: 10px;
+#qr-container.hidden {
+    display: none;
+}
+
+.qr-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
 }
 
 #qr-canvas {
-    max-width: 200px;
-    max-height: 200px;
+    background: white;
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    border: 2px solid var(--primary-color);
 }
 
-.decode-area {
+/* Sección de Desencriptación */
+.upload-container {
+    margin-bottom: 2rem;
+}
+
+.file-upload {
+    display: block;
+    border: 2px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.file-upload:hover {
+    border-color: var(--primary-color);
+    background: rgba(0, 204, 153, 0.05);
+}
+
+.upload-content {
     text-align: center;
+    color: rgba(255, 255, 255, 0.6);
 }
 
-.decode-area h3 {
-    color: #00cc99;
-    margin-bottom: 10px;
+.upload-content i {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
 }
 
-#qr-upload {
-    margin: 10px 0;
+.message-container {
+    margin-top: 2rem;
+    background: rgba(30, 30, 30, 0.6);
+    border-radius: 10px;
+    padding: 1.5rem;
+    min-height: 200px;
 }
 
-#decode-button {
-    padding: 10px 20px;
-    background-color: #00cc99;
-    border: none;
-    border-radius: 5px;
+.message {
+    background: rgba(58, 58, 58, 0.8);
+    padding: 1rem;
+    margin: 1rem 0;
+    border-radius: 8px;
+    animation: slideIn 0.3s ease-out;
+}
+
+.message.sent {
+    background: var(--primary-color);
     color: #1a1a1a;
-    cursor: pointer;
-    transition: background-color 0.3s;
 }
 
-#decode-button:hover {
-    background-color: #00b386;
+.message-placeholder {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.4);
+    padding: 2rem;
 }
 
-#download-button {
-    padding: 10px 20px;
-    background-color: #00cc99;
-    border: none;
-    border-radius: 5px;
-    color: #1a1a1a;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    margin-top: 10px;
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-#download-button:hover {
-    background-color: #00b386;
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@media (max-width: 768px) {
+    .main-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .container {
+        padding: 1rem;
+    }
+    
+    .logo {
+        font-size: 2rem;
+    }
 }
