@@ -1,4 +1,4 @@
-```markdown
+
 # 🔒 HUSHBOX  
 *A Secure, Ephemeral Messaging Web App via QR Codes*  
 
@@ -54,4 +54,4 @@ HUSHBOX lets you send self-destructing encrypted messages through QR codes.
 
 ---  
 📜 **License**: MIT | 🔗 **powered by SHUMZU**: https://github.com/MPetovick/SHUMZU  
-``` 
+
