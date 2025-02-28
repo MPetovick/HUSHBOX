@@ -211,10 +211,8 @@ const handlers = {
     }
 };
 
-// Event Listeners
 elements.sendButton.addEventListener('click', handlers.handleEncrypt);
 elements.decodeButton.addEventListener('click', handlers.handleDecrypt);
 elements.downloadButton.addEventListener('click', handlers.handleDownload);
 
-// Initialize
 elements.qrContainer.classList.add('hidden');
