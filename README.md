@@ -3,7 +3,7 @@
 
 ---
 
-✨ **Turn Secrets into Scannable Art**  
+✨ **Turn Secrets into QR**  
 HUSHBOX lets you send self-destructing encrypted messages through QR codes. 
 
 ---
