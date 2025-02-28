@@ -13,7 +13,7 @@ HUSHBOX lets you send self-destructing encrypted messages through QR codes.
 - 📲 **QR Generation**: Messages vanish after scanning or closing the tab.  
 - 🌐 **Zero Server Storage**: Everything happens in your browser.  
 - 🧨 **Self-Destruct**: Messages disappear after decryption.
-- 🧨 **Pako**: Compress data   
+- 📦 **Pako**: Compress data   
 
 ---
 
