@@ -1,4 +1,4 @@
-# 🔒 HUSHBOX  [HUSHBOX](https://mpetovick.github.io/HUSHBOX)
+# 🔒  [HUSHBOX](https://mpetovick.github.io/HUSHBOX)
 *A Secure, Ephemeral Messaging Web App via QR Codes*  
 
 ---
