@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,9 +28,11 @@
                 <div id="qr-container" class="hidden">
                     <div class="qr-header">
                         <h3><i class="fas fa-qrcode"></i> Secure QR</h3>
-                        <button id="download-button" class="btn-secondary">
-                            <i class="fas fa-download"></i> Download
-                        </button>
+                        <div class="qr-actions">
+                            <button id="download-button" class="btn-secondary">
+                                <i class="fas fa-download"></i> Download
+                            </button>
+                        </div>
                     </div>
                     <canvas id="qr-canvas"></canvas>
                 </div>
@@ -53,17 +55,18 @@
                 <div id="messages" class="message-container">
                     <div class="message-placeholder">
                         <i class="fas fa-comments"></i>
-                        <p>Encrypted & Decrypted messages appear here</p>
+                        <p>Decrypted messages appear here</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Librerías necesarias -->
+    <!-- Required Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
