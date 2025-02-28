@@ -1,4 +1,3 @@
-
 const elements = {
     messagesDiv: document.getElementById('messages'),
     passphraseInput: document.getElementById('passphrase'),
