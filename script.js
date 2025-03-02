@@ -99,24 +99,49 @@ const ui = {
     },
 
     generateQR: async (data) => {
-        return new Promise((resolve, reject) => {
-            QRCode.toCanvas(elements.qrCanvas, data, {
-                width: 250,
-                margin: 2,
-                color: {
-                    dark: '#000000',
-                    light: '#ffffff'
-                }
-            }, (error) => {
-                if (error) {
-                    reject(error);
-                } else {
-                    elements.qrContainer.classList.remove('hidden');
-                    resolve();
-                }
-            });
+    return new Promise((resolve, reject) => {
+        QRCode.toCanvas(elements.qrCanvas, data, {
+            width: 250,
+            margin: 2,
+            color: {
+                dark: '#000000',
+                light: '#ffffff'
+            }
+        }, (error) => {
+            if (error) {
+                reject(error);
+            } else {
+                const ctx = elements.qrCanvas.getContext('2d');
+
+                // Tamaño del círculo de la marca de agua
+                const circleRadius = 40; // Radio del círculo
+                const circleX = 125; // Centro horizontal del canvas (250px / 2)
+                const circleY = 125; // Centro vertical del canvas (250px / 2)
+
+                // Dibujar el círculo de fondo
+                ctx.beginPath();
+                ctx.arc(circleX, circleY, circleRadius, 0, Math.PI * 2);
+                ctx.fillStyle = 'var(--primary-color)'; // Usar el color verde de tu CSS
+                ctx.fill();
+
+                // Configurar el estilo del texto
+                ctx.fillStyle = '#00cc99'; // Texto en negro
+                ctx.font = 'bold 18px "Segoe UI", system-ui, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                // Texto "HUSH" arriba
+                ctx.fillText('HUSH', circleX, circleY - 10); // 10px arriba del centro
+
+                // Texto "BOX" debajo
+                ctx.fillText('BOX', circleX, circleY + 15); // 15px debajo del centro
+
+                elements.qrContainer.classList.remove('hidden');
+                resolve();
+            }
         });
-    },
+    });
+},
 
     showLoader: (button, text = 'Processing...') => {
         button.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${text}`;
