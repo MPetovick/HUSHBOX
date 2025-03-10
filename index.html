@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,39 +22,67 @@
                     <textarea id="message-input" placeholder="Write your secure message..." rows="4"></textarea>
                     <i class="fas fa-comment-dots icon"></i>
                 </div>
-                <button id="send-button" class="btn-primary">
-                    <i class="fas fa-lock"></i> Encrypt & Generate QR
-                </button>
+
+                <!-- Botones de acción con íconos -->
+                <div class="button-group">
+                    <button id="upload-arrow-button" class="btn-icon" title="Upload Image">
+                        <i class="fas fa-arrow-up"></i>
+                    </button>
+                    <button id="scan-button" class="btn-icon" title="Scan QR">
+                        <i class="fas fa-camera"></i>
+                    </button>
+                    <button id="image-button" class="btn-icon" title="Upload QR Image">
+                        <i class="fas fa-image"></i>
+                    </button>
+                    <button id="pdf-button" class="btn-icon" title="Upload PDF">
+                        <i class="fas fa-file-pdf"></i>
+                    </button>
+                    <a href="https://t.me/HUSHBOXbot" target="_blank" class="btn-icon social-icon telegram" title="Telegram">
+                        <i class="fab fa-telegram-plane"></i>
+                    </a>
+                    <a href="https://twitter.com/HUSHBOXonline" target="_blank" class="btn-icon social-icon twitter" title="Twitter">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                </div>
+
+                <!-- Área de la cámara -->
+                <div id="camera-container" class="hidden">
+                    <video id="camera-preview" autoplay></video>
+                </div>
+
+                <!-- Botones Encrypt y Decrypt en la misma fila -->
+                <div class="action-buttons">
+                    <button id="send-button" class="btn-primary">
+                        <i class="fas fa-lock"></i> Encrypt
+                    </button>
+                    <button id="decode-button" class="btn-primary">
+                        <i class="fas fa-unlock"></i> Decrypt
+                    </button>
+                </div>
+
                 <div id="qr-container" class="hidden">
                     <div class="qr-header">
                         <h3><i class="fas fa-qrcode"></i> Secure QR</h3>
                         <div class="qr-actions">
                             <button id="download-button" class="btn-secondary">
-                                <i class="fas fa-download"></i> Download
+                                <i class="fas fa-arrow-down"></i> Download
+                            </button>
+                            <button id="share-button" class="btn-secondary">
+                                <i class="fas fa-share-alt"></i> Share
                             </button>
                         </div>
                     </div>
-                    <canvas id="qr-canvas"></canvas>
+                    <canvas id="qr-canvas" aria-label="Generated QR code with encrypted message">
+                        Your browser does not support canvas. The QR code with your encrypted message cannot be displayed.
+                    </canvas>
                 </div>
             </div>
 
             <div class="section decrypt-section">
-                <div class="upload-container">
-                    <label class="file-upload">
-                        <input type="file" id="qr-upload" accept="image/*">
-                        <div class="upload-content">
-                            <i class="fas fa-cloud-upload-alt"></i>
-                            <p>Drop or click to upload QR</p>
-                        </div>
-                    </label>
-                </div>
-                <button id="decode-button" class="btn-primary">
-                    <i class="fas fa-unlock"></i> Decrypt Message
-                </button>
                 <div id="messages" class="message-container">
                     <div class="message-placeholder">
                         <i class="fas fa-comments"></i>
-                        <p>Encrypt & Decrypted messages appear here</p>
+                        <p>Encrypted & Decrypted messages appear here</p>
                     </div>
                 </div>
             </div>
@@ -63,7 +92,6 @@
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="script.js"></script>
 
     <meta name="google-adsense-account" content="ca-pub-8457972429738145">
