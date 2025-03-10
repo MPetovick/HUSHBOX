@@ -1,4 +1,3 @@
-
 // Configuración global para parámetros criptográficos
 const CONFIG = {
     PBKDF2_ITERATIONS: 500000,
