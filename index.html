@@ -7,6 +7,20 @@
     <meta name="description" content="HUSHBOX is a privacy-focused tool for secure messaging using advanced encryption and QR codes. Simple and functional, it requires both users to share a password externally for secure transmission. Built upon SHUMZU.">
     <meta name="google-adsense-account" content="ca-pub-8457972429738145">
 
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'unsafe-inline';
+        style-src 'self' https://cdnjs.cloudflare.com 'unsafe-inline';
+        img-src 'self' data: blob:;
+        font-src 'self' https://cdnjs.cloudflare.com;
+        connect-src 'self';
+        frame-src 'none';
+        object-src 'none';
+        base-uri 'self';
+        form-action 'self';
+    ">
+
     <!-- Title and Icons -->
     <title>HushBox - Secure Messaging with QR</title>
     <link rel="icon" href="/HUSHBOX/favicon.ico" type="image/x-icon">
@@ -108,6 +122,5 @@
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
     <script src="script.js"></script>
-
 </body>
 </html>
