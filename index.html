@@ -1,26 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-3BMRH5DR05"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-3BMRH5DR05');
-</script>
+    <!-- Meta Tags -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="HUSHBOX is a privacy-focused tool for secure messaging using advanced encryption and QR codes. Simple and functional, it requires both users to share a password externally for secure transmission. Built upon SHUMZU.">
+    <meta name="google-adsense-account" content="ca-pub-8457972429738145">
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-3BMRH5DR05"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-3BMRH5DR05');
+    </script>
+
+    <!-- Title and Icons -->
     <title>HushBox - Secure Messaging with QR</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" type="image/png" href="/assets/favicon.png">
+    <link rel="android-icon" sizes="192x192" href="/assets/icons/android-icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon-180x180.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/assets/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/assets/apple-touch-icon-120x120.png">
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
 </head>
+
 <body>
     <div class="container">
         <h1 class="logo">HUSHBOX</h1>
         <div class="main-grid">
+            <!-- Encryption Section -->
             <div class="section encrypt-section">
                 <div class="input-group">
                     <input type="password" id="passphrase" placeholder="Enter your secret passphrase" required>
@@ -31,18 +46,18 @@
                     <i class="fas fa-comment-dots icon"></i>
                 </div>
 
-                <!-- Botones de acción con íconos -->
+                <!-- Action Buttons -->
                 <div class="button-group">
                     <button id="upload-arrow-button" class="btn-icon" title="Upload Image">
                         <i class="fas fa-arrow-up"></i>
                     </button>
-                    <button id="scan-button" class="btn-icon" title="Scan QR">
+                    <button id="scan-button" class="btn-icon" title="Scan QR" disabled>
                         <i class="fas fa-camera"></i>
                     </button>
-                    <button id="image-button" class="btn-icon" title="Upload QR Image">
+                    <button id="image-button" class="btn-icon" title="Upload QR Image" disabled>
                         <i class="fas fa-image"></i>
                     </button>
-                    <button id="pdf-button" class="btn-icon" title="Upload PDF">
+                    <button id="pdf-button" class="btn-icon" title="Upload PDF" disabled>
                         <i class="fas fa-file-pdf"></i>
                     </button>
                     <a href="https://t.me/HUSHBOXbot" target="_blank" class="btn-icon social-icon telegram" title="Telegram">
@@ -53,39 +68,39 @@
                     </a>
                 </div>
 
-                <!-- Área de la cámara -->
+                <!-- Camera Container -->
                 <div id="camera-container" class="hidden">
                     <video id="camera-preview" autoplay></video>
                 </div>
 
-                <!-- Botones Encrypt y Decrypt en la misma fila -->
+                <!-- Encrypt/Decrypt Buttons -->
                 <div class="action-buttons">
-                    <button id="send-button" class="btn-primary">
+                    <button id="send-button" class="btn-primary" aria-label="Encrypt message">
                         <i class="fas fa-lock"></i> Encrypt
                     </button>
-                    <button id="decode-button" class="btn-primary">
+                    <button id="decode-button" class="btn-primary" aria-label="Decrypt message">
                         <i class="fas fa-unlock"></i> Decrypt
                     </button>
                 </div>
 
+                <!-- QR Code Container -->
                 <div id="qr-container" class="hidden">
                     <div class="qr-header">
                         <h3><i class="fas fa-qrcode"></i> Secure QR</h3>
                         <div class="qr-actions">
-                            <button id="download-button" class="btn-secondary">
+                            <button id="download-button" class="btn-secondary" aria-label="Download QR code">
                                 <i class="fas fa-arrow-down"></i> Download
                             </button>
-                            <button id="share-button" class="btn-secondary">
+                            <button id="share-button" class="btn-secondary" aria-label="Share QR code">
                                 <i class="fas fa-share-alt"></i> Share
                             </button>
                         </div>
                     </div>
-                    <canvas id="qr-canvas" aria-label="Generated QR code with encrypted message">
-                        Your browser does not support canvas. The QR code with your encrypted message cannot be displayed.
-                    </canvas>
+                    <canvas id="qr-canvas" aria-label="Generated QR code with encrypted message"></canvas>
                 </div>
             </div>
 
+            <!-- Decryption Section -->
             <div class="section decrypt-section">
                 <div id="messages" class="message-container">
                     <div class="message-placeholder">
@@ -97,24 +112,10 @@
         </div>
     </div>
 
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
     <script src="script.js"></script>
-
-    
-    <meta name="google-adsense-account" content="ca-pub-8457972429738145">
-
-    <meta name="description" content="HUSHBOX is a privacy-focused tool for secure messaging using advanced encryption and QR codes. Simple and functional, it requires both users to share a password externally for secure transmission. Built upon SHUMZU." />
-
-    <link rel="manifest" href="/manifest.json">
-
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <link rel="icon" type="image/png" href="/assets/favicon.png">
-    <link rel="android-icon" sizes="192x192" href="/assets/icons/android-icon-192x192.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon-180x180.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="/assets/apple-touch-icon-152x152.png">
-    <link rel="apple-touch-icon" sizes="120x120" href="/assets/apple-touch-icon-120x120.png">
-
 </body>
 </html>
