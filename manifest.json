@@ -2,33 +2,33 @@
   "name": "HushBox",
   "short_name": "HushBox",
   "description": "HUSHBOX is a privacy-focused tool for secure messaging using advanced encryption and QR codes. Simple and functional, it requires both users to share a password externally for secure transmission. Built upon SHUMZU.",
-  "start_url": "/",
+  "start_url": "/HUSHBOX/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#000000",
-  "scope": "/",
+  "scope": "/HUSHBOX/",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/assets/icons/android-icon-192x192.png",
+      "src": "/HUSHBOX/assets/icons/android-icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/assets/apple-touch-icon-180x180.png",
+      "src": "/HUSHBOX/assets/apple-touch-icon-180x180.png",
       "sizes": "180x180",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/assets/apple-touch-icon-152x152.png",
+      "src": "/HUSHBOX/assets/apple-touch-icon-152x152.png",
       "sizes": "152x152",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/assets/apple-touch-icon-120x120.png",
+      "src": "/HUSHBOX/assets/apple-touch-icon-120x120.png",
       "sizes": "120x120",
       "type": "image/png",
       "purpose": "any"
