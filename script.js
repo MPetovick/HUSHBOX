@@ -1,12 +1,17 @@
+
 // Configuración global para parámetros criptográficos
 const CONFIG = {
-    PBKDF2_ITERATIONS: 500000,
+    PBKDF2_ITERATIONS: 250000, // Reducido para mejor rendimiento
     SALT_LENGTH: 32,
     IV_LENGTH: 12,
     AES_KEY_LENGTH: 256,
     HMAC_LENGTH: 256,
     QR_SIZE: 200, // Tamaño base más compacto
-    MIN_PASSPHRASE_LENGTH: 12
+    MIN_PASSPHRASE_LENGTH: 12,
+    COMPRESSION_THRESHOLD: 100, // Umbral para compresión
+    MAX_QR_SIZE: 350, // Tamaño máximo del QR
+    CAMERA_TIMEOUT: 30000, // 30 segundos
+    DECRYPT_DELAY_INCREMENT: 100 // ms por intento fallido
 };
 
 // Elementos del DOM
@@ -41,6 +46,10 @@ const scanContext = scanCanvas.getContext('2d');
 scanCanvas.style.display = 'none';
 document.body.appendChild(scanCanvas);
 
+// Variables para protección contra fuerza bruta
+let decryptAttempts = 0;
+let cameraTimeoutId = null;
+
 // Utilidades criptográficas
 const cryptoUtils = {
     stringToArrayBuffer: str => new TextEncoder().encode(str),
@@ -52,6 +61,11 @@ const cryptoUtils = {
         }
         if (/^(.)\1+$/.test(passphrase)) {
             throw new Error('Passphrase cannot consist of repeated characters');
+        }
+        // Métrica básica de entropía
+        const uniqueChars = new Set(passphrase).size;
+        if (uniqueChars < 5) {
+            throw new Error('Passphrase should have at least 5 unique characters');
         }
         return true;
     },
@@ -81,12 +95,15 @@ const cryptoUtils = {
                 hash: 'SHA-256'
             },
             baseKeyMaterial,
-            CONFIG.AES_KEY_LENGTH + CONFIG.HMAC_LENGTH
+            CONFIG.AES_KEY_LENGTH + CONFIG.HMAC_LENGTH // Total bits for AES and HMAC keys
         );
+
+        // Convertir ArrayBuffer a Uint8Array para manipulación
+        const derivedBitsArray = new Uint8Array(derivedBits);
 
         const aesKey = await crypto.subtle.importKey(
             'raw',
-            derivedBits.slice(0, CONFIG.AES_KEY_LENGTH / 8),
+            derivedBitsArray.slice(0, CONFIG.AES_KEY_LENGTH / 8),
             { name: 'AES-GCM' },
             false,
             ['encrypt', 'decrypt']
@@ -94,11 +111,14 @@ const cryptoUtils = {
 
         const hmacKey = await crypto.subtle.importKey(
             'raw',
-            derivedBits.slice(CONFIG.AES_KEY_LENGTH / 8),
+            derivedBitsArray.slice(CONFIG.AES_KEY_LENGTH / 8),
             { name: 'HMAC', hash: 'SHA-256' },
             false,
             ['sign', 'verify']
         );
+
+        // Sobrescribir datos sensibles en memoria
+        derivedBitsArray.fill(0);
 
         return { aesKey, hmacKey };
     },
@@ -106,7 +126,10 @@ const cryptoUtils = {
     encryptMessage: async (message, passphrase) => {
         try {
             cryptoUtils.validatePassphrase(passphrase);
-            const compressed = pako.deflate(cryptoUtils.stringToArrayBuffer(message), { level: 6 });
+            let dataToEncrypt = cryptoUtils.stringToArrayBuffer(message);
+            if (message.length > CONFIG.COMPRESSION_THRESHOLD) {
+                dataToEncrypt = pako.deflate(dataToEncrypt, { level: 6 });
+            }
             const salt = crypto.getRandomValues(new Uint8Array(CONFIG.SALT_LENGTH));
             const iv = cryptoUtils.generateIV();
             const { aesKey, hmacKey } = await cryptoUtils.deriveKeyPair(passphrase, salt);
@@ -114,7 +137,7 @@ const cryptoUtils = {
             const encrypted = await crypto.subtle.encrypt(
                 { name: 'AES-GCM', iv },
                 aesKey,
-                compressed
+                dataToEncrypt
             );
 
             const hmac = await crypto.subtle.sign(
@@ -132,6 +155,10 @@ const cryptoUtils = {
             return btoa(String.fromCharCode(...combined));
         } catch (error) {
             throw new Error('Encryption failed: ' + error.message);
+        } finally {
+            // Limpiar memoria
+            passphrase = null;
+            dataToEncrypt = null;
         }
     },
 
@@ -162,11 +189,20 @@ const cryptoUtils = {
                 ciphertext
             );
 
-            const decompressed = pako.inflate(new Uint8Array(decrypted));
+            let decompressed;
+            try {
+                decompressed = pako.inflate(new Uint8Array(decrypted));
+            } catch (e) {
+                decompressed = new Uint8Array(decrypted);
+            }
             return cryptoUtils.arrayBufferToString(decompressed);
         } catch (error) {
-            await new Promise(resolve => setTimeout(resolve, 100));
+            decryptAttempts++;
+            await new Promise(resolve => setTimeout(resolve, decryptAttempts * CONFIG.DECRYPT_DELAY_INCREMENT));
             throw new Error('Decryption failed: ' + error.message);
+        } finally {
+            // Limpiar memoria
+            passphrase = null;
         }
     }
 };
@@ -190,7 +226,7 @@ const uiController = {
     generateQR: async (data) => {
         return new Promise((resolve, reject) => {
             const dataLength = data.length;
-            const qrSize = Math.max(CONFIG.QR_SIZE, Math.min(400, Math.ceil(dataLength / 20) * 10 + 150));
+            const qrSize = Math.min(CONFIG.MAX_QR_SIZE, Math.max(CONFIG.QR_SIZE, Math.ceil(dataLength / 20) * 10 + 150));
 
             // Preparar el canvas principal con dimensiones desde el inicio
             domElements.qrCanvas.width = qrSize;
@@ -248,24 +284,6 @@ const uiController = {
     resetButton: (button, originalHTML) => {
         button.innerHTML = originalHTML;
         button.disabled = false;
-    },
-
-    showComingSoon: (button) => {
-        const comingSoonEl = document.createElement('div');
-        comingSoonEl.className = 'coming-soon-message';
-        comingSoonEl.textContent = 'COMING SOON';
-
-        const buttonRect = button.getBoundingClientRect();
-        const containerRect = document.querySelector('.container').getBoundingClientRect();
-
-        comingSoonEl.style.left = `${buttonRect.left - containerRect.left + buttonRect.width / 2}px`;
-        comingSoonEl.style.top = `${buttonRect.top - containerRect.top - 50}px`;
-        comingSoonEl.style.transform = 'translateX(-50%)';
-
-        document.querySelector('.container').appendChild(comingSoonEl);
-        setTimeout(() => {
-            comingSoonEl.remove();
-        }, 3000);
     }
 };
 
@@ -306,27 +324,35 @@ const handlers = {
             return;
         }
 
-        const originalButtonHTML = domElements.imageButton.innerHTML;
-        uiController.showLoader(domElements.imageButton, '');
-
-        uiController.displayMessage('Loading image...', false);
+        const originalButtonHTML = domElements.decodeButton.innerHTML;
+        uiController.showLoader(domElements.decodeButton, 'Decrypting...');
 
         try {
-            if (typeof jsQR === 'undefined') {
-                throw new Error('jsQR library not loaded. Please refresh the page.');
-            }
-
             const imageData = await new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.onload = e => {
                     const img = new Image();
                     img.onload = () => {
                         const canvas = document.createElement('canvas');
-                        canvas.width = img.width;
-                        canvas.height = img.height;
+                        const MAX_SIZE = 800;
+                        let width = img.width;
+                        let height = img.height;
+                        if (width > height) {
+                            if (width > MAX_SIZE) {
+                                height *= MAX_SIZE / width;
+                                width = MAX_SIZE;
+                            }
+                        } else {
+                            if (height > MAX_SIZE) {
+                                width *= MAX_SIZE / height;
+                                height = MAX_SIZE;
+                            }
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
                         const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0);
-                        resolve(ctx.getImageData(0, 0, img.width, img.height));
+                        ctx.drawImage(img, 0, 0, width, height);
+                        resolve(ctx.getImageData(0, 0, width, height));
                     };
                     img.onerror = reject;
                     img.src = e.target.result;
@@ -334,8 +360,6 @@ const handlers = {
                 reader.onerror = reject;
                 reader.readAsDataURL(file);
             });
-
-            uiController.displayMessage('Image loaded, decoding QR...', false);
 
             const qrCode = jsQR(imageData.data, imageData.width, imageData.height);
             if (!qrCode) {
@@ -346,6 +370,7 @@ const handlers = {
             uiController.displayMessage(`Decrypted: ${decrypted}`, false);
             domElements.passphraseInput.value = '';
             fileInput.value = '';
+            decryptAttempts = 0; // Reiniciar contador de intentos
         } catch (error) {
             console.error('Decryption error:', error);
             uiController.displayMessage(
@@ -355,7 +380,7 @@ const handlers = {
                 false
             );
         } finally {
-            uiController.resetButton(domElements.imageButton, originalButtonHTML);
+            uiController.resetButton(domElements.decodeButton, originalButtonHTML);
         }
     },
 
@@ -394,25 +419,17 @@ const handlers = {
         }
     },
 
-    handleScan: async (event) => {
-        uiController.showComingSoon(event.currentTarget);
-    },
-
     stopCamera: () => {
         const stream = domElements.cameraPreview.srcObject;
         if (stream) {
             stream.getTracks().forEach(track => track.stop());
             domElements.cameraPreview.srcObject = null;
             domElements.cameraContainer.classList.add('hidden');
+            if (cameraTimeoutId) {
+                clearTimeout(cameraTimeoutId);
+                cameraTimeoutId = null;
+            }
         }
-    },
-
-    handleImageUpload: (event) => {
-        uiController.showComingSoon(event.currentTarget);
-    },
-
-    handlePDFUpload: (event) => {
-        uiController.showComingSoon(event.currentTarget);
     },
 
     handleUploadArrow: () => {
@@ -426,9 +443,6 @@ domElements.sendButton.addEventListener('click', handlers.handleEncrypt);
 domElements.decodeButton.addEventListener('click', handlers.handleDecrypt);
 domElements.downloadButton.addEventListener('click', handlers.handleDownload);
 domElements.shareButton.addEventListener('click', handlers.handleShare);
-domElements.scanButton.addEventListener('click', handlers.handlePDFUpload);
-domElements.imageButton.addEventListener('click', handlers.handlePDFUpload);
-domElements.pdfButton.addEventListener('click', handlers.handlePDFUpload);
 fileInput.addEventListener('change', handlers.handleDecrypt);
 
 // Validación visual de la passphrase
