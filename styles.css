@@ -2,7 +2,7 @@
     --primary-color: #00cc99;
     --secondary-color: #2a2a2a;
     --background-gradient: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-    --text-color: #f0f0f0; /* Ajustado para mejor contraste */
+    --text-color: #f0f0f0;
     --success-color: #00cc99;
     --error-color: #ff4d4d;
     --section-bg: rgba(42, 42, 42, 0.95);
@@ -42,7 +42,7 @@ body {
     font-size: clamp(2rem, 6vw, 2.8rem);
     letter-spacing: clamp(2px, 0.5vw, 4px);
     text-shadow: 0 0 10px var(--glow-color);
-    animation: pulseGlow 4s infinite; /* Frecuencia reducida */
+    animation: pulseGlow 4s infinite;
     position: relative;
 }
 
@@ -55,7 +55,21 @@ body {
     height: 2px;
     background: var(--primary-color);
     transform: translateX(-50%);
-    animation: lineGlow 4s infinite; /* Frecuencia reducida */
+    animation: lineGlow 4s infinite;
+}
+
+.lock-icon {
+    font-size: 0.8em;
+    color: var(--primary-color);
+    cursor: pointer;
+    margin-right: 10px;
+    transition: color 0.3s ease;
+    text-decoration: none; /* Eliminar subrayado */
+}
+
+.lock-icon:hover {
+    color: #00b386;
+    text-decoration: none; /* Asegurar que no haya subrayado al pasar el mouse */
 }
 
 .main-grid { 
@@ -211,7 +225,7 @@ body {
 
 #qr-canvas { 
     max-width: 100%;
-    max-height: 350px; /* Tamaño máximo establecido */
+    max-height: 350px;
     background: white;
     padding: clamp(0.5rem, 1vw, 0.8rem);
     border-radius: 12px;
@@ -266,7 +280,6 @@ body {
     color: rgba(255, 255, 255, 0.6);
 }
 
-/* Botones con íconos */
 .button-group {
     display: flex;
     gap: 1rem;
@@ -300,7 +313,6 @@ body {
     font-size: 1.2rem;
 }
 
-/* Iconos de redes sociales */
 .social-icon {
     display: flex;
     align-items: center;
@@ -322,7 +334,6 @@ body {
     box-shadow: 0 4px 8px var(--glow-color);
 }
 
-/* Cámara */
 #camera-container {
     display: none;
     margin-bottom: 1rem;
@@ -351,7 +362,6 @@ body {
     flex: 1;
 }
 
-/* Animaciones */
 @keyframes pulseGlow {
     0% { text-shadow: 0 0 10px var(--glow-color); }
     50% { text-shadow: 0 0 20px var(--glow-color), 0 0 30px var(--glow-color); }
@@ -364,12 +374,91 @@ body {
     100% { width: 60%; opacity: 0.7; }
 }
 
-/* Media Queries para dispositivos móviles */
+/* Modal de tutorial */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: var(--section-bg);
+    padding: 2rem;
+    border-radius: 15px;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+    position: relative;
+}
+
+.close-modal {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--primary-color);
+}
+
+.close-modal:hover {
+    color: #00b386;
+}
+
+#close-tutorial {
+    margin-top: 1rem;
+}
+
+#dont-show-again {
+    margin-top: 10px;
+    background: var(--secondary-color);
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+}
+
+#dont-show-again:hover {
+    background: var(--primary-color);
+    color: #1a1a1a;
+}
+
+/* Estilos para el mensaje "Coming Soon" */
+#coming-soon-message {
+    position: absolute;
+    bottom: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--section-bg);
+    color: var(--primary-color);
+    padding: 10px 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    font-size: 1rem;
+    font-weight: 500;
+    opacity: 0;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    z-index: 1000;
+}
+
+#coming-soon-message.visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-10px);
+}
+
+#coming-soon-message p {
+    margin: 0;
+}
+
 @media (max-width: 768px) {
     .logo {
-        animation: none; /* Eliminar animación en móviles */
+        animation: none;
     }
     .logo::after {
-        animation: none; /* Eliminar animación en móviles */
+        animation: none;
     }
 }
