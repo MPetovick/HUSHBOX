@@ -1,7 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <!-- Meta Tags -->
+<!-- Meta Tags -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="HUSHBOX is a privacy-focused tool for secure messaging using advanced encryption and QR codes. Simple and functional, it requires both users to share a password externally for secure transmission. Built upon SHUMZU.">
@@ -35,12 +32,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
     <div class="container">
-        <h1 class="logo">HUSHBOX</h1>
+        <h1 class="logo">
+            <a href="https://github.com/MPetovick/HUSHBOX/blob/main/README.md" target="_blank" class="lock-icon" title="Learn more about HushBox">
+                <i class="fas fa-lock"></i>
+            </a> HUSHBOX
+        </h1>
         <div class="main-grid">
-            <!-- Encryption Section -->
             <div class="section encrypt-section">
                 <div class="input-group">
                     <input type="password" id="passphrase" placeholder="Enter your secret passphrase" required>
@@ -51,7 +50,7 @@
                     <i class="fas fa-comment-dots icon"></i>
                 </div>
 
-                <!-- Action Buttons -->
+                <!-- Botones de acción con íconos -->
                 <div class="button-group">
                     <button id="upload-arrow-button" class="btn-icon" title="Upload Image">
                         <i class="fas fa-arrow-up"></i>
@@ -71,24 +70,27 @@
                     <a href="https://twitter.com/HUSHBOXonline" target="_blank" class="btn-icon social-icon twitter" title="Twitter">
                         <i class="fab fa-twitter"></i>
                     </a>
+                    <!-- Mensaje "Coming Soon" -->
+                    <div id="coming-soon-message" class="hidden">
+                        <p>Coming Soon!</p>
+                    </div>
                 </div>
 
-                <!-- Camera Container -->
+                <!-- Área de la cámara -->
                 <div id="camera-container" class="hidden">
                     <video id="camera-preview" autoplay></video>
                 </div>
 
-                <!-- Encrypt/Decrypt Buttons -->
+                <!-- Botones Encrypt y Decrypt en la misma fila -->
                 <div class="action-buttons">
                     <button id="send-button" class="btn-primary" aria-label="Encrypt message">
                         <i class="fas fa-lock"></i> Encrypt
                     </button>
-                    <button id="decode-button" class="btn-primary" aria-label="Decrypt message">
+                    <button id="decode-button" class="btn-primary" aria-label="Decrypt message" disabled>
                         <i class="fas fa-unlock"></i> Decrypt
                     </button>
                 </div>
 
-                <!-- QR Code Container -->
                 <div id="qr-container" class="hidden">
                     <div class="qr-header">
                         <h3><i class="fas fa-qrcode"></i> Secure QR</h3>
@@ -105,7 +107,6 @@
                 </div>
             </div>
 
-            <!-- Decryption Section -->
             <div class="section decrypt-section">
                 <div id="messages" class="message-container">
                     <div class="message-placeholder">
@@ -117,7 +118,24 @@
         </div>
     </div>
 
-    <!-- Scripts -->
+    <!-- Modal de tutorial -->
+    <div id="tutorial-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Welcome to HushBox!</h2>
+            <p>Here's how to use HushBox:</p>
+            <ol>
+                <li>Enter a secure passphrase and write your message.</li>
+                <li>Click "Encrypt" to generate a secure QR code.</li>
+                <li>Share or download the QR code.</li>
+                <li>Use "Decrypt" to read messages from a QR code.</li>
+            </ol>
+            <button id="close-tutorial" class="btn-primary">Got it!</button>
+            <!-- Botón "No mostrar nuevamente" -->
+            <button id="dont-show-again" class="btn-secondary">Don't show this again</button>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
