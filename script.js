@@ -1,17 +1,16 @@
-
 // Configuración global para parámetros criptográficos
 const CONFIG = {
-    PBKDF2_ITERATIONS: 250000, // Reducido para mejor rendimiento
+    PBKDF2_ITERATIONS: 250000,
     SALT_LENGTH: 32,
     IV_LENGTH: 12,
     AES_KEY_LENGTH: 256,
     HMAC_LENGTH: 256,
-    QR_SIZE: 200, // Tamaño base más compacto
+    QR_SIZE: 200,
     MIN_PASSPHRASE_LENGTH: 12,
-    COMPRESSION_THRESHOLD: 100, // Umbral para compresión
-    MAX_QR_SIZE: 350, // Tamaño máximo del QR
-    CAMERA_TIMEOUT: 30000, // 30 segundos
-    DECRYPT_DELAY_INCREMENT: 100 // ms por intento fallido
+    COMPRESSION_THRESHOLD: 100,
+    MAX_QR_SIZE: 350,
+    CAMERA_TIMEOUT: 30000,
+    DECRYPT_DELAY_INCREMENT: 100
 };
 
 // Elementos del DOM
@@ -30,7 +29,12 @@ const domElements = {
     decodeButton: document.getElementById('decode-button'),
     downloadButton: document.getElementById('download-button'),
     shareButton: document.getElementById('share-button'),
-    qrContainer: document.getElementById('qr-container')
+    qrContainer: document.getElementById('qr-container'),
+    tutorialModal: document.getElementById('tutorial-modal'),
+    closeTutorial: document.getElementById('close-tutorial'),
+    dontShowAgain: document.getElementById('dont-show-again'),
+    closeModalButton: document.querySelector('.close-modal'),
+    comingSoonMessage: document.getElementById('coming-soon-message')
 };
 
 // Input oculto para la carga de imágenes
@@ -49,6 +53,66 @@ document.body.appendChild(scanCanvas);
 // Variables para protección contra fuerza bruta
 let decryptAttempts = 0;
 let cameraTimeoutId = null;
+
+// Verificar si el usuario ha elegido no mostrar el modal nuevamente
+const shouldShowModal = () => {
+    const dontShowAgain = localStorage.getItem('dontShowAgain');
+    return dontShowAgain !== 'true'; // Mostrar modal si no está marcado como "No mostrar nuevamente"
+};
+
+// Mostrar el modal si es necesario
+const showTutorialModal = () => {
+    if (shouldShowModal()) {
+        domElements.tutorialModal.style.display = 'flex';
+    }
+};
+
+// Cerrar el modal
+const closeTutorialModal = () => {
+    domElements.tutorialModal.style.display = 'none';
+};
+
+// Guardar la preferencia del usuario en localStorage
+const setDontShowAgain = () => {
+    localStorage.setItem('dontShowAgain', 'true');
+    closeTutorialModal();
+};
+
+// Función para mostrar y ocultar el mensaje "Coming Soon"
+const showComingSoonMessage = () => {
+    domElements.comingSoonMessage.classList.add('visible');
+    setTimeout(() => {
+        domElements.comingSoonMessage.classList.remove('visible');
+    }, 2000); // El mensaje desaparece después de 2 segundos
+};
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', showTutorialModal); // Mostrar modal al cargar la página
+domElements.closeTutorial.addEventListener('click', closeTutorialModal); // Cerrar modal al hacer clic en "Got it!"
+domElements.closeModalButton.addEventListener('click', closeTutorialModal); // Cerrar modal al hacer clic en la "X"
+domElements.dontShowAgain.addEventListener('click', setDontShowAgain); // Guardar preferencia y cerrar modal
+
+// Event listeners para los botones de "Coming Soon"
+domElements.scanButton.addEventListener('click', showComingSoonMessage);
+domElements.imageButton.addEventListener('click', showComingSoonMessage);
+domElements.pdfButton.addEventListener('click', showComingSoonMessage);
+
+// Habilitar botones dinámicamente
+domElements.scanButton.disabled = false; // Habilitar cuando la funcionalidad de escaneo esté lista
+domElements.imageButton.disabled = false; // Habilitar cuando la funcionalidad de carga de imagen esté lista
+domElements.pdfButton.disabled = false; // Habilitar cuando la funcionalidad de PDF esté lista
+
+// Deshabilitar decodeButton inicialmente
+domElements.decodeButton.disabled = true;
+
+// Habilitar decodeButton cuando se cargue un archivo
+fileInput.addEventListener('change', () => {
+    if (fileInput.files.length > 0) {
+        domElements.decodeButton.disabled = false;
+    } else {
+        domElements.decodeButton.disabled = true;
+    }
+});
 
 // Utilidades criptográficas
 const cryptoUtils = {
