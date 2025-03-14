@@ -499,7 +499,7 @@ const handlers = {
                 try {
                     await navigator.clipboard.writeText(qrDataUrl);
                     uiController.displayMessage(
-                        'Sharing not supported. QR data URL copied to clipboard! Paste it in Telegram or another app.',
+                        'Sharing and downloading are not supported on Telegram yet. Use HUSHBOX from a modern browser.',
                         false
                     );
                 } catch (clipError) {
