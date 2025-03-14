@@ -128,10 +128,7 @@ sequenceDiagram
 - 🔒 Never share passphrase on same platform as QR
 - 🌐 Use different networks for QR and credential exchange
 - ⏳ Set post expiration where possible (e.g., Twitter Fleets)
-- 🖼️ Convert QR to lossy formats (JPEG) to hinder automated scanning
 - 🔗 Prefer private channels (DMs) over public posts
-- 📍 Add visual noise to QR background when posting publicly
-- ✉️ Split QR across multiple posts for high-sensitivity messages
 
 This workflow enables secure communication through untrusted platforms while maintaining E2E encryption through the combination of QR steganography and separate credential exchange.
 
