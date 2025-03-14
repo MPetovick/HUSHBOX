@@ -10,7 +10,9 @@ const CONFIG = {
     COMPRESSION_THRESHOLD: 100,
     MAX_QR_SIZE: 350,
     CAMERA_TIMEOUT: 30000,
-    DECRYPT_DELAY_INCREMENT: 100
+    DECRYPT_DELAY_INCREMENT: 100,
+    MAX_DECRYPT_ATTEMPTS: 5,
+    DECRYPT_COOLDOWN: 5 * 60 * 1000 // 5 minutos
 };
 
 // Elementos del DOM
@@ -57,7 +59,7 @@ let cameraTimeoutId = null;
 // Verificar si el usuario ha elegido no mostrar el modal nuevamente
 const shouldShowModal = () => {
     const dontShowAgain = localStorage.getItem('dontShowAgain');
-    return dontShowAgain !== 'true'; // Mostrar modal si no está marcado como "No mostrar nuevamente"
+    return dontShowAgain !== 'true';
 };
 
 // Mostrar el modal si es necesario
@@ -83,14 +85,14 @@ const showComingSoonMessage = () => {
     domElements.comingSoonMessage.classList.add('visible');
     setTimeout(() => {
         domElements.comingSoonMessage.classList.remove('visible');
-    }, 2000); // El mensaje desaparece después de 2 segundos
+    }, 2000);
 };
 
 // Event listeners
-document.addEventListener('DOMContentLoaded', showTutorialModal); // Mostrar modal al cargar la página
-domElements.closeTutorial.addEventListener('click', closeTutorialModal); // Cerrar modal al hacer clic en "Got it!"
-domElements.closeModalButton.addEventListener('click', closeTutorialModal); // Cerrar modal al hacer clic en la "X"
-domElements.dontShowAgain.addEventListener('click', setDontShowAgain); // Guardar preferencia y cerrar modal
+document.addEventListener('DOMContentLoaded', showTutorialModal);
+domElements.closeTutorial.addEventListener('click', closeTutorialModal);
+domElements.closeModalButton.addEventListener('click', closeTutorialModal);
+domElements.dontShowAgain.addEventListener('click', setDontShowAgain);
 
 // Event listeners para los botones de "Coming Soon"
 domElements.scanButton.addEventListener('click', showComingSoonMessage);
@@ -98,9 +100,9 @@ domElements.imageButton.addEventListener('click', showComingSoonMessage);
 domElements.pdfButton.addEventListener('click', showComingSoonMessage);
 
 // Habilitar botones dinámicamente
-domElements.scanButton.disabled = false; // Habilitar cuando la funcionalidad de escaneo esté lista
-domElements.imageButton.disabled = false; // Habilitar cuando la funcionalidad de carga de imagen esté lista
-domElements.pdfButton.disabled = false; // Habilitar cuando la funcionalidad de PDF esté lista
+domElements.scanButton.disabled = false;
+domElements.imageButton.disabled = false;
+domElements.pdfButton.disabled = false;
 
 // Deshabilitar decodeButton inicialmente
 domElements.decodeButton.disabled = true;
@@ -126,10 +128,13 @@ const cryptoUtils = {
         if (/^(.)\1+$/.test(passphrase)) {
             throw new Error('Passphrase cannot consist of repeated characters');
         }
-        // Métrica básica de entropía
         const uniqueChars = new Set(passphrase).size;
         if (uniqueChars < 5) {
             throw new Error('Passphrase should have at least 5 unique characters');
+        }
+        const commonPasswords = ['password', '123456', 'qwerty', 'admin'];
+        if (commonPasswords.includes(passphrase.toLowerCase())) {
+            throw new Error('Passphrase is too common. Please choose a stronger one.');
         }
         return true;
     },
@@ -159,10 +164,9 @@ const cryptoUtils = {
                 hash: 'SHA-256'
             },
             baseKeyMaterial,
-            CONFIG.AES_KEY_LENGTH + CONFIG.HMAC_LENGTH // Total bits for AES and HMAC keys
+            CONFIG.AES_KEY_LENGTH + CONFIG.HMAC_LENGTH
         );
 
-        // Convertir ArrayBuffer a Uint8Array para manipulación
         const derivedBitsArray = new Uint8Array(derivedBits);
 
         const aesKey = await crypto.subtle.importKey(
@@ -181,9 +185,7 @@ const cryptoUtils = {
             ['sign', 'verify']
         );
 
-        // Sobrescribir datos sensibles en memoria
         derivedBitsArray.fill(0);
-
         return { aesKey, hmacKey };
     },
 
@@ -220,7 +222,6 @@ const cryptoUtils = {
         } catch (error) {
             throw new Error('Encryption failed: ' + error.message);
         } finally {
-            // Limpiar memoria
             passphrase = null;
             dataToEncrypt = null;
         }
@@ -228,6 +229,10 @@ const cryptoUtils = {
 
     decryptMessage: async (encryptedBase64, passphrase) => {
         try {
+            if (decryptAttempts >= CONFIG.MAX_DECRYPT_ATTEMPTS) {
+                throw new Error('Too many failed attempts. Please try again later.');
+            }
+
             const encryptedData = Uint8Array.from(atob(encryptedBase64), c => c.charCodeAt(0));
             const salt = encryptedData.slice(0, CONFIG.SALT_LENGTH);
             const iv = encryptedData.slice(CONFIG.SALT_LENGTH, CONFIG.SALT_LENGTH + CONFIG.IV_LENGTH);
@@ -265,7 +270,6 @@ const cryptoUtils = {
             await new Promise(resolve => setTimeout(resolve, decryptAttempts * CONFIG.DECRYPT_DELAY_INCREMENT));
             throw new Error('Decryption failed: ' + error.message);
         } finally {
-            // Limpiar memoria
             passphrase = null;
         }
     }
@@ -292,7 +296,6 @@ const uiController = {
             const dataLength = data.length;
             const qrSize = Math.min(CONFIG.MAX_QR_SIZE, Math.max(CONFIG.QR_SIZE, Math.ceil(dataLength / 20) * 10 + 150));
 
-            // Preparar el canvas principal con dimensiones desde el inicio
             domElements.qrCanvas.width = qrSize;
             domElements.qrCanvas.height = qrSize;
 
@@ -332,9 +335,7 @@ const uiController = {
                 qrCtx.clearRect(0, 0, qrSize, qrSize);
                 qrCtx.drawImage(tempCanvas, 0, 0, qrSize, qrSize);
 
-                // Mostrar el contenedor solo después de que el QR esté listo
                 domElements.qrContainer.classList.remove('hidden');
-
                 resolve();
             });
         });
@@ -434,7 +435,7 @@ const handlers = {
             uiController.displayMessage(`Decrypted: ${decrypted}`, false);
             domElements.passphraseInput.value = '';
             fileInput.value = '';
-            decryptAttempts = 0; // Reiniciar contador de intentos
+            decryptAttempts = 0;
         } catch (error) {
             console.error('Decryption error:', error);
             uiController.displayMessage(
@@ -448,38 +449,71 @@ const handlers = {
         }
     },
 
-    handleDownload: () => {
-        const link = document.createElement('a');
-        link.download = 'hushbox-qr.png';
-        link.href = domElements.qrCanvas.toDataURL('image/png', 1.0);
-        link.click();
+    handleDownload: async () => {
+        try {
+            if (!domElements.qrCanvas.toDataURL) {
+                uiController.displayMessage('No QR code available to download.', false);
+                return;
+            }
+
+            const qrDataUrl = domElements.qrCanvas.toDataURL('image/png', 0.9);
+            const qrBlob = await (await fetch(qrDataUrl)).blob();
+
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const fileName = `hushbox-qr-${timestamp}.png`;
+
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(qrBlob);
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+
+            uiController.displayMessage('QR downloaded successfully!', false);
+        } catch (error) {
+            console.error('Download error:', error);
+            uiController.displayMessage('Failed to download QR: ' + error.message, false);
+        }
     },
 
     handleShare: async () => {
-        const qrDataUrl = domElements.qrCanvas.toDataURL('image/png', 1.0);
-        const qrBlob = await (await fetch(qrDataUrl)).blob();
-        const qrFile = new File([qrBlob], 'hushbox-qr.png', { type: 'image/png' });
+        try {
+            if (!domElements.qrCanvas.toDataURL) {
+                uiController.displayMessage('No QR code available to share.', false);
+                return;
+            }
 
-        if (navigator.share && navigator.canShare({ files: [qrFile] })) {
-            try {
+            const qrDataUrl = domElements.qrCanvas.toDataURL('image/png', 0.9);
+            const qrBlob = await (await fetch(qrDataUrl)).blob();
+            const qrFile = new File([qrBlob], 'hushbox-qr.png', { type: 'image/png' });
+
+            if (navigator.share && navigator.canShare({ files: [qrFile] })) {
                 await navigator.share({
                     title: 'HushBox Secure QR',
                     text: 'Check out this encrypted QR code from HushBox!',
                     files: [qrFile]
                 });
                 uiController.displayMessage('QR shared successfully!', false);
-            } catch (error) {
-                console.error('Share error:', error);
-                uiController.displayMessage('Sharing failed: ' + error.message, false);
+            } else {
+                try {
+                    await navigator.clipboard.writeText(qrDataUrl);
+                    uiController.displayMessage(
+                        'Sharing not supported. QR data URL copied to clipboard! Paste it in Telegram or another app.',
+                        false
+                    );
+                } catch (clipError) {
+                    console.error('Clipboard error:', clipError);
+                    uiController.displayMessage(
+                        'Sharing and clipboard not supported. Please download the QR and share it manually (e.g., in Telegram).',
+                        false
+                    );
+                    handlers.handleDownload();
+                }
             }
-        } else {
-            try {
-                await navigator.clipboard.writeText(qrDataUrl);
-                uiController.displayMessage('QR data URL copied to clipboard!', false);
-            } catch (error) {
-                console.error('Clipboard error:', error);
-                uiController.displayMessage('Failed to copy QR to clipboard', false);
-            }
+        } catch (error) {
+            console.error('Share error:', error);
+            uiController.displayMessage('Failed to share QR: ' + error.message, false);
         }
     },
 
