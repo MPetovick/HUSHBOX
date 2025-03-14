@@ -454,11 +454,35 @@ body {
     margin: 0;
 }
 
+/* Media Queries para móviles */
 @media (max-width: 768px) {
-    .logo {
-        animation: none;
+    .main-grid {
+        grid-template-columns: 1fr; /* Una sola columna en móviles */
     }
+
+    .logo {
+        animation: none; /* Desactivar animaciones en móviles */
+    }
+
     .logo::after {
-        animation: none;
+        animation: none; /* Desactivar animaciones en móviles */
+    }
+
+    .container {
+        padding: 1rem; /* Reducir padding en móviles */
+    }
+
+    .btn-primary {
+        padding: 1rem; /* Aumentar padding en móviles */
+        font-size: 1rem; /* Aumentar tamaño de fuente */
+    }
+
+    #qr-canvas {
+        max-height: 250px; /* Reducir altura máxima del QR */
+    }
+
+    #coming-soon-message {
+        font-size: 0.9rem; /* Reducir tamaño de fuente */
+        padding: 8px 16px; /* Reducir padding */
     }
 }
