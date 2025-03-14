@@ -1,4 +1,4 @@
-# 🔒 [HUSHBOX](https://www.hushbox.online) - Secure Messaging with QR Encryption 
+# 🔒 [HUSHBOX](https://www.hushbox.online) - Secure Messaging with QR
 
 **HUSHBOX** is a privacy-first communication tool that combines military-grade encryption with QR code technology to enable secure message transmission. Designed for users who value digital privacy, it implements modern cryptographic standards to protect your communications from prying eyes.
 
