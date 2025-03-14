@@ -122,7 +122,7 @@ sequenceDiagram
 4. **Multi-Layer Security:**
    - Social Media: Acts as public transport layer only
    - Secondary Channel: For passphrase exchange (e.g., Signal)
-   - Time-Based Protection: QR contains encrypted timestamp for expiration
+   - Time-Based Protection: QR contains encrypted timestamp for expiration *Coming soon
 
 **Security Best Practices for Social Sharing:**
 - 🔒 Never share passphrase on same platform as QR
