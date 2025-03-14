@@ -152,7 +152,7 @@ This workflow enables secure communication through untrusted platforms while mai
 - CSP-compliant script loading
 
 ## 📜 License
-MIT License - See [LICENSE](LICENSE) file
+MIT License
 
 ## 🌐 Contact & Community
 - Telegram: [@HUSHBOX_QR](https://t.me/HUSHBOX_QR)
