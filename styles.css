@@ -1,4 +1,4 @@
-:root { 
+:root {
     --primary-color: #00cc99;
     --secondary-color: #2a2a2a;
     --background-gradient: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
@@ -9,53 +9,41 @@
     --glow-color: rgba(0, 204, 153, 0.4);
 }
 
-* { 
-    margin: 0; 
-    padding: 0; 
-    box-sizing: border-box; 
-    font-family: 'Segoe UI', system-ui, sans-serif; 
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', system-ui, sans-serif;
 }
 
-body { 
+body {
     background: var(--background-gradient);
     color: var(--text-color);
     min-height: 100vh;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    flex-direction: column;
+    justify-content: space-between;
     line-height: 1.6;
     overflow-x: hidden;
     padding: 1rem;
 }
 
-.container { 
-    width: 100%;
-    max-width: 1200px;
-    padding: clamp(1rem, 3vw, 2rem);
-    position: relative;
+/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    position: relative; /* Añadimos esto para que sea el contenedor de referencia */
 }
 
-.logo { 
-    text-align: center;
+.logo {
     color: var(--primary-color);
-    margin-bottom: clamp(1.5rem, 4vw, 2rem);
     font-size: clamp(2rem, 6vw, 2.8rem);
     letter-spacing: clamp(2px, 0.5vw, 4px);
     text-shadow: 0 0 10px var(--glow-color);
     animation: pulseGlow 4s infinite;
-    position: relative;
-}
-
-.logo::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    bottom: -10px;
-    width: 60%;
-    height: 2px;
-    background: var(--primary-color);
-    transform: translateX(-50%);
-    animation: lineGlow 4s infinite;
+    position: relative; /* Añadimos esto para mayor control */
 }
 
 .lock-icon {
@@ -64,22 +52,43 @@ body {
     cursor: pointer;
     margin-right: 10px;
     transition: color 0.3s ease;
-    text-decoration: none; /* Eliminar subrayado */
+    text-decoration: none;
 }
 
 .lock-icon:hover {
     color: #00b386;
-    text-decoration: none; /* Asegurar que no haya subrayado al pasar el mouse */
+    text-decoration: none;
 }
 
-.main-grid { 
+.login-icon {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.login-icon:hover {
+    color: #00b386;
+    transform: translateY(-2px);
+}
+
+/* Contenedor Principal */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    padding: clamp(1rem, 3vw, 2rem);
+    position: relative;
+    margin: 0 auto;
+}
+
+.main-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: clamp(1rem, 3vw, 2rem);
     margin-top: clamp(1rem, 3vw, 2rem);
 }
 
-.section { 
+.section {
     background: var(--section-bg);
     border-radius: 15px;
     padding: clamp(1rem, 2.5vw, 2rem);
@@ -97,12 +106,12 @@ body {
     flex-direction: column;
 }
 
-.input-group { 
+.input-group {
     position: relative;
     margin-bottom: clamp(1rem, 2vw, 1.5rem);
 }
 
-.input-group .icon { 
+.input-group .icon {
     position: absolute;
     right: 1rem;
     top: 50%;
@@ -112,7 +121,7 @@ body {
     transition: color 0.3s ease;
 }
 
-#passphrase, #message-input { 
+#passphrase, #message-input {
     width: 100%;
     padding: clamp(0.8rem, 2vw, 1rem) clamp(2rem, 4vw, 2.5rem) clamp(0.8rem, 2vw, 1rem) clamp(0.8rem, 2vw, 1rem);
     border: 2px solid transparent;
@@ -123,19 +132,19 @@ body {
     transition: all 0.3s ease;
 }
 
-#message-input { 
+#message-input {
     resize: vertical;
     min-height: clamp(100px, 25vw, 150px);
     max-height: 300px;
 }
 
-#passphrase:focus, #message-input:focus { 
+#passphrase:focus, #message-input:focus {
     outline: none;
     border-color: var(--primary-color);
     box-shadow: 0 0 12px var(--glow-color);
 }
 
-.btn-primary { 
+.btn-primary {
     width: 100%;
     padding: clamp(0.8rem, 2.5vw, 1.2rem);
     background: var(--primary-color);
@@ -152,7 +161,7 @@ body {
     font-size: clamp(0.9rem, 2.5vw, 1.1rem);
 }
 
-.btn-primary:hover { 
+.btn-primary:hover {
     background: #00b386;
     transform: translateY(-2px);
     box-shadow: 0 4px 16px var(--glow-color);
@@ -195,7 +204,7 @@ body {
     color: #1a1a1a;
 }
 
-#qr-container { 
+#qr-container {
     margin-top: clamp(1rem, 3vw, 2rem);
     text-align: center;
     will-change: opacity;
@@ -203,15 +212,15 @@ body {
     transition: opacity 0.3s ease;
 }
 
-#qr-container.hidden { 
-    display: none; 
+#qr-container.hidden {
+    display: none;
 }
 
 #qr-container:not(.hidden) {
     opacity: 1;
 }
 
-.qr-header { 
+.qr-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -223,7 +232,7 @@ body {
     gap: clamp(0.5rem, 1vw, 1rem);
 }
 
-#qr-canvas { 
+#qr-canvas {
     max-width: 100%;
     max-height: 350px;
     background: white;
@@ -234,7 +243,7 @@ body {
     margin: 0 auto;
 }
 
-.message-container { 
+.message-container {
     background: rgba(30, 30, 30, 0.6);
     border-radius: 10px;
     padding: clamp(1rem, 2vw, 1.5rem);
@@ -242,13 +251,14 @@ body {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; 
+    justify-content: flex-start;
     overflow-x: hidden;
-    overflow-y: auto; 
-    min-height: 200px; 
+    overflow-y: auto; /* Permitir scroll vertical */
+    min-height: 200px; /* Mantener el tamaño mínimo actual */
+    max-height: 400px; /* Limitar a la altura aproximada de 7 mensajes */
 }
 
-.message { 
+.message {
     max-width: 100%;
     word-break: break-all;
     margin-bottom: 0.5rem;
@@ -258,7 +268,7 @@ body {
     text-align: right;
 }
 
-.message-content { 
+.message-content {
     display: inline-block;
     max-width: 100%;
     padding: 0.5rem 1rem;
@@ -268,7 +278,7 @@ body {
     word-break: break-all;
 }
 
-.message-time { 
+.message-time {
     font-size: clamp(0.7rem, 1.5vw, 0.8rem);
     color: rgba(255, 255, 255, 0.6);
     margin-top: 0.2rem;
@@ -457,32 +467,93 @@ body {
 /* Media Queries para móviles */
 @media (max-width: 768px) {
     .main-grid {
-        grid-template-columns: 1fr; /* Una sola columna en móviles */
+        grid-template-columns: 1fr;
     }
 
     .logo {
-        animation: none; /* Desactivar animaciones en móviles */
+        animation: none;
     }
 
     .logo::after {
-        animation: none; /* Desactivar animaciones en móviles */
+        animation: none;
     }
 
     .container {
-        padding: 1rem; /* Reducir padding en móviles */
+        padding: 1rem;
     }
 
     .btn-primary {
-        padding: 1rem; /* Aumentar padding en móviles */
-        font-size: 1rem; /* Aumentar tamaño de fuente */
+        padding: 1rem;
+        font-size: 1rem;
     }
 
     #qr-canvas {
-        max-height: 250px; /* Reducir altura máxima del QR */
+        max-height: 250px;
     }
 
     #coming-soon-message {
-        font-size: 0.9rem; /* Reducir tamaño de fuente */
-        padding: 8px 16px; /* Reducir padding */
+        font-size: 0.9rem;
+        padding: 8px 16px;
     }
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    padding: 0.5rem; /* Reducimos el padding de 1rem a 0.5rem */
+    background: var(--secondary-color);
+    margin-top: 1rem; /* Reducimos el margen superior de 2rem a 1rem */
+}
+
+.footer p {
+    margin: 0;
+    font-size: 0.8rem; /* Reducimos el tamaño de fuente de 0.9rem a 0.8rem */
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.footer a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer a:hover {
+    color: #00b386;
+}
+
+.social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem; /* Reducimos el gap de 1rem a 0.5rem */
+    margin-bottom: 0.5rem; /* Reducimos el margen inferior de 1rem a 0.5rem */
+}
+
+.social-icons .btn-icon {
+    width: auto;
+    height: auto;
+    border-radius: 0;
+    background: transparent;
+    color: var(--primary-color);
+    border: none;
+    transition: color 0.3s ease;
+    padding: 0.3rem; /* Reducimos el padding de 0.5rem a 0.3rem */
+    font-size: 1rem; /* Tamaño de los íconos más pequeño si es necesario */
+}
+
+.social-icons .btn-icon:hover {
+    background: transparent;
+    color: #00b386;
+    transform: translateY(-2px);
+    box-shadow: none;
+}
+
+.char-counter {
+    position: absolute;
+    right: 1rem;
+    bottom: 0.5rem;
+    font-size: 0.8rem;
+    color: rgba(160, 160, 160, 0.8);
+    /* Eliminamos el fondo y el borde redondeado */
+    padding: 0; /* Quitamos el padding para que no haya espacio extra */
+    pointer-events: none;
 }
