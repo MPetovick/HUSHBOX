@@ -73,7 +73,7 @@ sequenceDiagram
     User->>HUSHBOX: 1. Enter data + passphrase
     HUSHBOX->>HUSHBOX: 2. Encrypt data + Generate QR
     HUSHBOX->>User: 3. Display secure QR
-    User->>StorageMedium: 4. Save/Print QR (offline backup)
+    User->>StorageMedium: 4. Save/Print QR (online/offline backup)
     StorageMedium->>User: 5. Retrieve QR (when needed)
     User->>HUSHBOX: 6. Scan QR + Enter passphrase
     HUSHBOX->>HUSHBOX: 7. Decrypt data
