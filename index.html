@@ -21,21 +21,31 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
+    <!-- Header -->
+    <header class="header">
         <h1 class="logo">
             <a href="https://github.com/MPetovick/HUSHBOX/blob/main/README.md" target="_blank" class="lock-icon" title="Learn more about HushBox">
                 <i class="fas fa-lock"></i>
             </a> HUSHBOX
         </h1>
+        <a href="#" id="login-icon" class="login-icon" title="Login">
+            <i class="fas fa-user-circle"></i>
+        </a>
+    </header>
+
+    <!-- Contenido Principal -->
+    <div class="container">
         <div class="main-grid">
+            <!-- Sección de Cifrado -->
             <div class="section encrypt-section">
                 <div class="input-group">
                     <input type="password" id="passphrase" placeholder="Enter your secret passphrase" required>
                     <i class="fas fa-key icon"></i>
                 </div>
                 <div class="input-group">
-                    <textarea id="message-input" placeholder="Write your secure message..." rows="4"></textarea>
+                    <textarea id="message-input" placeholder="Write your secure message..." rows="4" maxlength="2000"></textarea>
                     <i class="fas fa-comment-dots icon"></i>
+                <div id="char-counter" class="char-counter">0/2000</div>
                 </div>
 
                 <!-- Botones de acción con íconos -->
@@ -52,12 +62,6 @@
                     <button id="pdf-button" class="btn-icon" title="Upload PDF" disabled>
                         <i class="fas fa-file-pdf"></i>
                     </button>
-                    <a href="https://t.me/HUSHBOX_QR" target="_blank" class="btn-icon social-icon telegram" title="Telegram">
-                        <i class="fab fa-telegram-plane"></i>
-                    </a>
-                    <a href="https://twitter.com/HUSHBOXonline" target="_blank" class="btn-icon social-icon twitter" title="Twitter">
-                        <i class="fab fa-twitter"></i>
-                    </a>
                     <!-- Mensaje "Coming Soon" -->
                     <div id="coming-soon-message" class="hidden">
                         <p>Coming Soon!</p>
@@ -79,6 +83,7 @@
                     </button>
                 </div>
 
+                <!-- Contenedor del QR -->
                 <div id="qr-container" class="hidden">
                     <div class="qr-header">
                         <h3><i class="fas fa-qrcode"></i> Secure QR</h3>
@@ -95,6 +100,7 @@
                 </div>
             </div>
 
+            <!-- Sección de Descifrado -->
             <div class="section decrypt-section">
                 <div id="messages" class="message-container">
                     <div class="message-placeholder">
@@ -105,6 +111,20 @@
             </div>
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="social-icons">
+            <a href="https://t.me/HUSHBOX_QR" target="_blank" class="btn-icon social-icon telegram" title="Telegram">
+                <i class="fab fa-telegram-plane"></i>
+            </a>
+            <a href="https://twitter.com/HUSHBOXonline" target="_blank" class="btn-icon social-icon twitter" title="Twitter">
+                <i class="fab fa-twitter"></i>
+            </a>
+        </div>
+        <p>&copy; 2025 HushBox. All rights reserved.</p>
+        <a href="#" target="_blank">Privacy Policy</a>
+    </footer>
 
     <!-- Modal de tutorial -->
     <div id="tutorial-modal" class="modal">
@@ -124,6 +144,7 @@
         </div>
     </div>
 
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
