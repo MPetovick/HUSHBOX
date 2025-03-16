@@ -36,8 +36,26 @@ const domElements = {
     closeTutorial: document.getElementById('close-tutorial'),
     dontShowAgain: document.getElementById('dont-show-again'),
     closeModalButton: document.querySelector('.close-modal'),
-    comingSoonMessage: document.getElementById('coming-soon-message')
+    comingSoonMessage: document.getElementById('coming-soon-message'),
+    loginIcon: document.getElementById('login-icon') // Nuevo ícono de login
 };
+
+//charCounter
+const messageInput = document.getElementById('message-input');
+const charCounter = document.getElementById('char-counter');
+
+messageInput.addEventListener('input', () => {
+    const currentLength = messageInput.value.length;
+    const maxLength = messageInput.getAttribute('maxlength');
+    charCounter.textContent = `${currentLength}/${maxLength}`;
+
+    // Cambiar el color del contador si se acerca al límite
+    if (currentLength >= maxLength * 0.9) {
+        charCounter.style.color = 'var(--error-color)';
+    } else {
+        charCounter.style.color = 'rgba(160, 160, 160, 0.8)';
+    }
+});
 
 // Input oculto para la carga de imágenes
 const fileInput = document.createElement('input');
@@ -55,6 +73,20 @@ document.body.appendChild(scanCanvas);
 // Variables para protección contra fuerza bruta
 let decryptAttempts = 0;
 let cameraTimeoutId = null;
+
+// Función para limpiar un ArrayBuffer o Uint8Array
+const clearBuffer = (buffer) => {
+    if (buffer instanceof ArrayBuffer) {
+        // Si es un ArrayBuffer, creamos un Uint8Array para sobrescribirlo
+        const zeros = new Uint8Array(buffer.byteLength);
+        new Uint8Array(buffer).set(zeros);
+    } else if (buffer instanceof Uint8Array || buffer instanceof Int32Array || buffer instanceof Float32Array) {
+        // Si es un TypedArray, lo sobrescribimos con ceros
+        buffer.fill(0);
+    } else {
+        console.warn("clearBuffer: El objeto no es un ArrayBuffer ni un TypedArray. No se puede limpiar.");
+    }
+};
 
 // Verificar si el usuario ha elegido no mostrar el modal nuevamente
 const shouldShowModal = () => {
@@ -136,6 +168,10 @@ const cryptoUtils = {
         if (commonPasswords.includes(passphrase.toLowerCase())) {
             throw new Error('Passphrase is too common. Please choose a stronger one.');
         }
+        const dangerousChars = /[<>'"&\\/]/;
+        if (dangerousChars.test(passphrase)) {
+            throw new Error('Passphrase contains invalid characters.');
+        }
         return true;
     },
 
@@ -185,20 +221,30 @@ const cryptoUtils = {
             ['sign', 'verify']
         );
 
-        derivedBitsArray.fill(0);
+        clearBuffer(derivedBitsArray); // Limpiar la memoria
         return { aesKey, hmacKey };
     },
 
     encryptMessage: async (message, passphrase) => {
+        let dataToEncrypt = null;
+        let salt = null;
+        let iv = null;
+        let aesKey = null;
+        let hmacKey = null;
+
         try {
             cryptoUtils.validatePassphrase(passphrase);
-            let dataToEncrypt = cryptoUtils.stringToArrayBuffer(message);
+            dataToEncrypt = cryptoUtils.stringToArrayBuffer(message);
+
             if (message.length > CONFIG.COMPRESSION_THRESHOLD) {
                 dataToEncrypt = pako.deflate(dataToEncrypt, { level: 6 });
             }
-            const salt = crypto.getRandomValues(new Uint8Array(CONFIG.SALT_LENGTH));
-            const iv = cryptoUtils.generateIV();
-            const { aesKey, hmacKey } = await cryptoUtils.deriveKeyPair(passphrase, salt);
+
+            salt = crypto.getRandomValues(new Uint8Array(CONFIG.SALT_LENGTH));
+            iv = cryptoUtils.generateIV();
+            const { aesKey: derivedAesKey, hmacKey: derivedHmacKey } = await cryptoUtils.deriveKeyPair(passphrase, salt);
+            aesKey = derivedAesKey;
+            hmacKey = derivedHmacKey;
 
             const encrypted = await crypto.subtle.encrypt(
                 { name: 'AES-GCM', iv },
@@ -222,24 +268,35 @@ const cryptoUtils = {
         } catch (error) {
             throw new Error('Encryption failed: ' + error.message);
         } finally {
-            passphrase = null;
-            dataToEncrypt = null;
+            // Limpiar buffers sensibles
+            if (dataToEncrypt) clearBuffer(dataToEncrypt);
+            if (salt) clearBuffer(salt);
+            if (iv) clearBuffer(iv);
+            passphrase = null; // Eliminar la referencia a la passphrase
         }
     },
 
     decryptMessage: async (encryptedBase64, passphrase) => {
+        let salt = null;
+        let iv = null;
+        let aesKey = null;
+        let hmacKey = null;
+        let decrypted = null;
+
         try {
             if (decryptAttempts >= CONFIG.MAX_DECRYPT_ATTEMPTS) {
                 throw new Error('Too many failed attempts. Please try again later.');
             }
 
             const encryptedData = Uint8Array.from(atob(encryptedBase64), c => c.charCodeAt(0));
-            const salt = encryptedData.slice(0, CONFIG.SALT_LENGTH);
-            const iv = encryptedData.slice(CONFIG.SALT_LENGTH, CONFIG.SALT_LENGTH + CONFIG.IV_LENGTH);
+            salt = encryptedData.slice(0, CONFIG.SALT_LENGTH);
+            iv = encryptedData.slice(CONFIG.SALT_LENGTH, CONFIG.SALT_LENGTH + CONFIG.IV_LENGTH);
             const ciphertext = encryptedData.slice(CONFIG.SALT_LENGTH + CONFIG.IV_LENGTH, -32);
             const hmac = encryptedData.slice(-32);
 
-            const { aesKey, hmacKey } = await cryptoUtils.deriveKeyPair(passphrase, salt);
+            const { aesKey: derivedAesKey, hmacKey: derivedHmacKey } = await cryptoUtils.deriveKeyPair(passphrase, salt);
+            aesKey = derivedAesKey;
+            hmacKey = derivedHmacKey;
 
             const isValid = await crypto.subtle.verify(
                 'HMAC',
@@ -252,7 +309,7 @@ const cryptoUtils = {
                 throw new Error('Integrity check failed: Data has been tampered with');
             }
 
-            const decrypted = await crypto.subtle.decrypt(
+            decrypted = await crypto.subtle.decrypt(
                 { name: 'AES-GCM', iv },
                 aesKey,
                 ciphertext
@@ -270,7 +327,11 @@ const cryptoUtils = {
             await new Promise(resolve => setTimeout(resolve, decryptAttempts * CONFIG.DECRYPT_DELAY_INCREMENT));
             throw new Error('Decryption failed: ' + error.message);
         } finally {
-            passphrase = null;
+            // Limpiar buffers sensibles
+            if (salt) clearBuffer(salt);
+            if (iv) clearBuffer(iv);
+            if (decrypted) clearBuffer(decrypted);
+            passphrase = null; // Eliminar la referencia a la passphrase
         }
     }
 };
@@ -278,17 +339,28 @@ const cryptoUtils = {
 // Controlador de la interfaz de usuario
 const uiController = {
     displayMessage: (content, isSent = false) => {
+        const messagesDiv = domElements.messagesDiv;
         const messageEl = document.createElement('div');
         messageEl.className = `message ${isSent ? 'sent' : ''}`;
         messageEl.innerHTML = `
             <div class="message-content">${content}</div>
             <div class="message-time">${new Date().toLocaleTimeString()}</div>
         `;
-        if (!isSent) {
-            domElements.messagesDiv.querySelector('.message-placeholder')?.remove();
+
+        // Eliminar el placeholder si existe y es el primer mensaje
+        if (!isSent && messagesDiv.children.length === 0) {
+            messagesDiv.querySelector('.message-placeholder')?.remove();
         }
-        domElements.messagesDiv.appendChild(messageEl);
-        domElements.messagesDiv.scrollTop = domElements.messagesDiv.scrollHeight;
+
+        // Limitar a 7 mensajes
+        const maxMessages = 7;
+        if (messagesDiv.children.length >= maxMessages) {
+            messagesDiv.removeChild(messagesDiv.firstChild); // Eliminar el mensaje más antiguo
+        }
+
+        // Agregar el nuevo mensaje
+        messagesDiv.appendChild(messageEl);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight; // Desplazar al final
     },
 
     generateQR: async (data) => {
