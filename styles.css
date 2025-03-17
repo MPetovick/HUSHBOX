@@ -142,8 +142,8 @@ body {
 /* Estilos específicos para el campo message-input */
 .input-group #message-input ~ .fa-comment-dots {
     right: 1rem;
-    top: calc(1rem + 0.5rem); /* Ajustado para alinearse con el texto en el textarea */
-    transform: none; /* Elimina translateY porque el textarea tiene varias líneas */
+    top: calc(1rem + 0.5rem);
+    transform: none;
 }
 
 #passphrase, #message-input {
@@ -170,11 +170,12 @@ body {
 }
 
 .btn-primary {
-    width: 100%;
-    padding: clamp(0.8rem, 2.5vw, 1.2rem);
+    width: auto;
+    min-width: 200px;
+    padding: clamp(0.8rem, 2vw, 1rem) clamp(1.5rem, 3vw, 2rem);
     background: var(--primary-color);
     border: none;
-    border-radius: 10px;
+    border-radius: 12px;
     color: #1a1a1a;
     font-weight: 600;
     cursor: pointer;
@@ -183,7 +184,9 @@ body {
     align-items: center;
     justify-content: center;
     gap: clamp(0.5rem, 1vw, 0.8rem);
-    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .btn-primary:hover {
@@ -200,27 +203,25 @@ body {
 }
 
 .btn-secondary {
-    padding: clamp(0.6rem, 1.5vw, 0.8rem);
-    background: var(--secondary-color);
-    border: 1px solid var(--primary-color);
+    width: 32px;
+    height: 32px;
+    padding: 0;
     border-radius: 8px;
-    color: var(--primary-color);
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
     display: flex;
+    justify-content: center;
     align-items: center;
-    gap: 0.5rem;
-    font-size: clamp(0.8rem, 2vw, 1rem);
+    background: rgba(0, 204, 153, 0.1);
+    border: 1px solid var(--primary-color);
+    transition: all 0.3s ease;
 }
 
 .btn-secondary:hover {
     background: var(--primary-color);
-    color: #1a1a1a;
-    box-shadow: 0 2px 8px var(--glow-color);
+    transform: translateY(-1px);
 }
 
 .btn-secondary i {
+    font-size: 1rem;
     color: var(--primary-color);
     transition: color 0.3s ease;
 }
@@ -247,14 +248,23 @@ body {
 
 .qr-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: clamp(1rem, 2vw, 1.5rem);
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    gap: 1rem;
+}
+
+.qr-header h3 {
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
 }
 
 .qr-actions {
     display: flex;
-    gap: clamp(0.5rem, 1vw, 1rem);
+    gap: 0.5rem;
 }
 
 #qr-canvas {
@@ -389,27 +399,18 @@ body {
 
 .action-buttons {
     display: flex;
+    justify-content: center;
     gap: clamp(0.5rem, 1vw, 1rem);
     margin-top: clamp(1rem, 2vw, 1.5rem);
 }
 
 .action-buttons .btn-primary {
-    flex: 1;
+    width: auto;
+    min-width: 150px;
+    max-width: none;
 }
 
-@keyframes pulseGlow {
-    0% { text-shadow: 0 0 10px var(--glow-color); }
-    50% { text-shadow: 0 0 20px var(--glow-color), 0 0 30px var(--glow-color); }
-    100% { text-shadow: 0 0 10px var(--glow-color); }
-}
-
-@keyframes lineGlow {
-    0% { width: 60%; opacity: 0.7; }
-    50% { width: 80%; opacity: 1; }
-    100% { width: 60%; opacity: 0.7; }
-}
-
-/* Modal de tutorial */
+/* Modal Enhancements */
 .modal {
     display: none;
     position: fixed;
@@ -418,19 +419,119 @@ body {
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: rgba(0, 0, 0, 0.85);
     justify-content: center;
     align-items: center;
+    animation: fadeIn 0.3s ease;
+    overflow-y: auto;
 }
 
 .modal-content {
     background: var(--section-bg);
-    padding: 2rem;
-    border-radius: 15px;
-    max-width: 500px;
+    padding: clamp(1.5rem, 3vw, 2rem);
+    border-radius: 20px;
+    max-width: 600px;
     width: 90%;
     text-align: center;
     position: relative;
+    box-shadow: 0 10px 40px rgba(0, 204, 153, 0.2);
+    border: 1px solid var(--primary-color);
+    overflow-y: auto;
+}
+
+.modal-header {
+    margin-bottom: 1.5rem;
+}
+
+.modal-header h2 {
+    color: var(--primary-color);
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    text-shadow: 0 0 8px var(--glow-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.modal-subtitle {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
+    margin-top: 0.5rem;
+}
+
+.modal-body {
+    margin-bottom: 2rem;
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.feature-item {
+    background: rgba(0, 204, 153, 0.05);
+    padding: 1rem;
+    border-radius: 12px;
+    transition: transform 0.3s ease;
+}
+
+.feature-item:hover {
+    transform: translateY(-5px);
+    background: rgba(0, 204, 153, 0.1);
+}
+
+.feature-icon {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.feature-item h3 {
+    font-size: 1.1rem;
+    color: var(--text-color);
+    margin-bottom: 0.3rem;
+}
+
+.feature-item p {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.security-tip {
+    background: rgba(0, 204, 153, 0.1);
+    padding: 1rem;
+    border-radius: 10px;
+    border-left: 4px solid var(--primary-color);
+    text-align: left;
+    font-size: 0.9rem;
+    color: var(--text-color);
+}
+
+.security-tip i {
+    margin-right: 0.5rem;
+    color: var(--primary-color);
+}
+
+.modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+}
+
+.disable-toggle {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.disable-toggle input {
+    accent-color: var(--primary-color);
 }
 
 .close-modal {
@@ -440,26 +541,23 @@ body {
     font-size: 1.5rem;
     cursor: pointer;
     color: var(--primary-color);
+    z-index: 1001;
 }
 
 .close-modal:hover {
     color: #00b386;
 }
 
-#close-tutorial {
-    margin-top: 1rem;
+/* Animations */
+@keyframes pulseGlow {
+    0% { text-shadow: 0 0 10px var(--glow-color); }
+    50% { text-shadow: 0 0 20px var(--glow-color), 0 0 30px var(--glow-color); }
+    100% { text-shadow: 0 0 10px var(--glow-color); }
 }
 
-#dont-show-again {
-    margin-top: 10px;
-    background: var(--secondary-color);
-    color: var(--primary-color);
-    border: 1px solid var(--primary-color);
-}
-
-#dont-show-again:hover {
-    background: var(--primary-color);
-    color: #1a1a1a;
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 /* Estilos para el mensaje "Coming Soon" */
@@ -499,10 +597,6 @@ body {
         animation: none;
     }
 
-    .logo::after {
-        animation: none;
-    }
-
     .container {
         padding: 1rem;
     }
@@ -519,6 +613,103 @@ body {
     #coming-soon-message {
         font-size: 0.9rem;
         padding: 8px 16px;
+    }
+
+    /* Optimización específica para el modal en móviles */
+    .modal-content {
+        max-width: 95%;
+        padding: 1rem;
+        margin: 0.5rem;
+    }
+
+    .feature-grid {
+        grid-template-columns: repeat(2, minmax(120px, 1fr));
+        gap: 0.5rem;
+    }
+
+    .feature-item {
+        padding: 0.8rem;
+        min-height: 140px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .feature-icon {
+        font-size: 1.3rem;
+        margin-bottom: 0.3rem;
+    }
+
+    .feature-item h3 {
+        font-size: 0.9rem;
+        margin-bottom: 0.3rem;
+    }
+
+    .feature-item p {
+        font-size: 0.75rem;
+        line-height: 1.3;
+    }
+
+    .security-tip {
+        grid-column: span 2;
+        font-size: 0.75rem;
+        padding: 0.6rem;
+        margin-top: 0.5rem;
+    }
+
+    .modal-header h2 {
+        font-size: 1.4rem;
+        line-height: 1.3;
+    }
+
+    .modal-subtitle {
+        font-size: 0.9rem;
+    }
+
+    .modal-actions .btn-primary {
+        width: 100%;
+    }
+
+    .close-modal {
+        top: 0.5rem;
+        right: 0.5rem;
+        font-size: 1.5rem;
+    }
+
+    /* Ajustes específicos para los botones de QR */
+    .qr-header {
+        gap: 0.75rem;
+    }
+    
+    .qr-header h3 {
+        font-size: 1.1rem;
+    }
+    
+    .btn-secondary {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .btn-secondary i {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .btn-secondary {
+        width: 26px;
+        height: 26px;
+    }
+    
+    .btn-secondary i {
+        font-size: 0.85rem;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .feature-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 
@@ -580,4 +771,8 @@ body {
     color: rgba(160, 160, 160, 0.8);
     padding: 0;
     pointer-events: none;
+}
+
+.hidden {
+    display: none;
 }
