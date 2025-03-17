@@ -90,10 +90,10 @@
                         <h3><i class="fas fa-qrcode"></i> Secure QR</h3>
                         <div class="qr-actions">
                             <button id="download-button" class="btn-secondary" aria-label="Download QR code">
-                                <i class="fas fa-arrow-down"></i> Download
+                                <i class="fas fa-arrow-down"></i>
                             </button>
                             <button id="share-button" class="btn-secondary" aria-label="Share QR code">
-                                <i class="fas fa-share-alt"></i> Share
+                                <i class="fas fa-share-alt"></i>
                             </button>
                         </div>
                     </div>
@@ -131,17 +131,46 @@
     <div id="tutorial-modal" class="modal">
         <div class="modal-content">
             <span class="close-modal">×</span>
-            <h2>Welcome to HushBox!</h2>
-            <p>Here's how to use HushBox:</p>
-            <ol>
-                <li>Enter a secure passphrase (or generate one) and write your message.</li>
-                <li>Click "Encrypt" to generate a secure QR code.</li>
-                <li>Share or download the QR code.</li>
-                <li>Use "Decrypt" to read messages from a QR code.</li>
-            </ol>
-            <button id="close-tutorial" class="btn-primary">Got it!</button>
-            <!-- Botón "No mostrar nuevamente" -->
-            <button id="dont-show-again" class="btn-secondary">Don't show this again</button>
+            <div class="modal-header">
+                <h2><i class="fas fa-lock"></i>HUSHBOX</h2>
+                <p class="modal-subtitle">Your Digital Privacy Vault</p>
+            </div>
+            <div class="modal-body">
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <i class="fas fa-shield-alt feature-icon"></i>
+                        <h3>Zero-Server Security</h3>
+                        <p>Messages never touch external servers, ensuring true privacy.</p>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-qrcode feature-icon"></i>
+                        <h3>QR Encryption</h3>
+                        <p>Advanced AES-256-GCM encryption with QR code delivery.</p>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-mobile-alt feature-icon"></i>
+                        <h3>Mobile-Ready</h3>
+                        <p>Install as a PWA for seamless use on any device.</p>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-user-secret feature-icon"></i>
+                        <h3>Complete Anonymity</h3>
+                        <p>No metadata or tracking—your identity stays hidden.</p>
+                    </div>
+                </div>
+                <div class="security-tip">
+                    <i class="fas fa-info-circle"></i>
+                    <p><strong>Pro Tip:</strong> Share your passphrase via a secure channel (e.g., Signal) separately from the QR code for maximum security.</p>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button id="close-tutorial" class="btn-primary">Start Securing Now</button>
+                <label class="disable-toggle">
+                    <input type="checkbox" id="dont-show-again-checkbox">
+                    Don’t show this again
+                </label>
+                <button id="dont-show-again" class="btn-secondary hidden">Save Preference</button>
+            </div>
         </div>
     </div>
 
