@@ -34,7 +34,7 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 1rem;
-    position: relative; /* Añadimos esto para que sea el contenedor de referencia */
+    position: relative;
 }
 
 .logo {
@@ -43,7 +43,7 @@ body {
     letter-spacing: clamp(2px, 0.5vw, 4px);
     text-shadow: 0 0 10px var(--glow-color);
     animation: pulseGlow 4s infinite;
-    position: relative; /* Añadimos esto para mayor control */
+    position: relative;
 }
 
 .lock-icon {
@@ -253,9 +253,9 @@ body {
     flex-direction: column;
     justify-content: flex-start;
     overflow-x: hidden;
-    overflow-y: auto; /* Permitir scroll vertical */
-    min-height: 200px; /* Mantener el tamaño mínimo actual */
-    max-height: 400px; /* Limitar a la altura aproximada de 7 mensajes */
+    overflow-y: auto; 
+    min-height: 200px;
+    max-height: 400px;
 }
 
 .message {
@@ -437,7 +437,6 @@ body {
     color: #1a1a1a;
 }
 
-/* Estilos para el mensaje "Coming Soon" */
 #coming-soon-message {
     position: absolute;
     bottom: -40px;
@@ -500,14 +499,14 @@ body {
 /* Footer */
 .footer {
     text-align: center;
-    padding: 0.5rem; /* Reducimos el padding de 1rem a 0.5rem */
+    padding: 0.5rem; 
     background: var(--secondary-color);
-    margin-top: 1rem; /* Reducimos el margen superior de 2rem a 1rem */
+    margin-top: 1rem; 
 }
 
 .footer p {
     margin: 0;
-    font-size: 0.8rem; /* Reducimos el tamaño de fuente de 0.9rem a 0.8rem */
+    font-size: 0.8rem;
     color: rgba(255, 255, 255, 0.7);
 }
 
@@ -524,8 +523,8 @@ body {
 .social-icons {
     display: flex;
     justify-content: center;
-    gap: 0.5rem; /* Reducimos el gap de 1rem a 0.5rem */
-    margin-bottom: 0.5rem; /* Reducimos el margen inferior de 1rem a 0.5rem */
+    gap: 0.5rem; 
+    margin-bottom: 0.5rem; 
 }
 
 .social-icons .btn-icon {
@@ -536,8 +535,8 @@ body {
     color: var(--primary-color);
     border: none;
     transition: color 0.3s ease;
-    padding: 0.3rem; /* Reducimos el padding de 0.5rem a 0.3rem */
-    font-size: 1rem; /* Tamaño de los íconos más pequeño si es necesario */
+    padding: 0.3rem; 
+    font-size: 1rem; 
 }
 
 .social-icons .btn-icon:hover {
@@ -553,7 +552,6 @@ body {
     bottom: 0.5rem;
     font-size: 0.8rem;
     color: rgba(160, 160, 160, 0.8);
-    /* Eliminamos el fondo y el borde redondeado */
-    padding: 0; /* Quitamos el padding para que no haya espacio extra */
+    padding: 0;
     pointer-events: none;
 }
