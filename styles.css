@@ -82,8 +82,7 @@ body {
 }
 
 .main-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    display: flex;
     gap: clamp(1rem, 3vw, 2rem);
     margin-top: clamp(1rem, 3vw, 2rem);
 }
@@ -95,13 +94,19 @@ body {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     backdrop-filter: blur(10px);
     transition: transform 0.3s ease;
+    flex: 1;
 }
 
 .section:hover {
     transform: translateY(-5px);
 }
 
+.encrypt-section {
+    flex: 1;
+}
+
 .decrypt-section {
+    flex: 1;
     display: flex;
     flex-direction: column;
 }
@@ -253,9 +258,10 @@ body {
     flex-direction: column;
     justify-content: flex-start;
     overflow-x: hidden;
-    overflow-y: auto; 
-    min-height: 200px;
-    max-height: 400px;
+    overflow-y: auto;
+    min-height: 20vh; /* Altura mínima relativa al viewport */
+    max-height: calc(100% - 2rem); /* Altura máxima basada en el contenedor padre menos un margen */
+    flex-grow: 1;
 }
 
 .message {
@@ -437,6 +443,7 @@ body {
     color: #1a1a1a;
 }
 
+/* Estilos para el mensaje "Coming Soon" */
 #coming-soon-message {
     position: absolute;
     bottom: -40px;
@@ -466,7 +473,7 @@ body {
 /* Media Queries para móviles */
 @media (max-width: 768px) {
     .main-grid {
-        grid-template-columns: 1fr;
+        flex-direction: column;
     }
 
     .logo {
@@ -499,9 +506,9 @@ body {
 /* Footer */
 .footer {
     text-align: center;
-    padding: 0.5rem; 
+    padding: 0.5rem;
     background: var(--secondary-color);
-    margin-top: 1rem; 
+    margin-top: 1rem;
 }
 
 .footer p {
@@ -523,8 +530,8 @@ body {
 .social-icons {
     display: flex;
     justify-content: center;
-    gap: 0.5rem; 
-    margin-bottom: 0.5rem; 
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
 }
 
 .social-icons .btn-icon {
@@ -535,8 +542,8 @@ body {
     color: var(--primary-color);
     border: none;
     transition: color 0.3s ease;
-    padding: 0.3rem; 
-    font-size: 1rem; 
+    padding: 0.3rem;
+    font-size: 1rem;
 }
 
 .social-icons .btn-icon:hover {
