@@ -37,25 +37,50 @@ const domElements = {
     dontShowAgain: document.getElementById('dont-show-again'),
     closeModalButton: document.querySelector('.close-modal'),
     comingSoonMessage: document.getElementById('coming-soon-message'),
-    loginIcon: document.getElementById('login-icon') // Nuevo ícono de login
+    loginIcon: document.getElementById('login-icon')
 };
 
-//charCounter
-const messageInput = document.getElementById('message-input');
-const charCounter = document.getElementById('char-counter');
-
-messageInput.addEventListener('input', () => {
-    const currentLength = messageInput.value.length;
-    const maxLength = messageInput.getAttribute('maxlength');
-    charCounter.textContent = `${currentLength}/${maxLength}`;
-
-    // Cambiar el color del contador si se acerca al límite
-    if (currentLength >= maxLength * 0.9) {
-        charCounter.style.color = 'var(--error-color)';
-    } else {
-        charCounter.style.color = 'rgba(160, 160, 160, 0.8)';
+// Función mejorada para generar contraseñas seguras que cumplan con las reglas de validación
+function generateSecurePassphrase(length = 16) {
+    length = Math.max(length, CONFIG.MIN_PASSPHRASE_LENGTH);
+    const charSets = {
+        uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+        lowercase: 'abcdefghijklmnopqrstuvwxyz',
+        digits: '0123456789',
+        symbols: '!@#$%^&*()_+-=[]{}|;:,.?'
+    };
+    const allChars = charSets.uppercase + charSets.lowercase + charSets.digits + charSets.symbols;
+    const getRandomChar = (str) => str[crypto.getRandomValues(new Uint32Array(1))[0] % str.length];
+    let passphraseArray = [
+        getRandomChar(charSets.uppercase),
+        getRandomChar(charSets.lowercase),
+        getRandomChar(charSets.digits),
+        getRandomChar(charSets.symbols)
+    ];
+    let fifthChar;
+    do {
+        fifthChar = getRandomChar(allChars);
+    } while (passphraseArray.includes(fifthChar));
+    passphraseArray.push(fifthChar);
+    const remainingLength = length - passphraseArray.length;
+    const randomValues = new Uint8Array(remainingLength);
+    crypto.getRandomValues(randomValues);
+    for (let i = 0; i < remainingLength; i++) {
+        passphraseArray.push(allChars[randomValues[i] % allChars.length]);
     }
-});
+    for (let i = passphraseArray.length - 1; i > 0; i--) {
+        const j = crypto.getRandomValues(new Uint32Array(1))[0] % (i + 1);
+        [passphraseArray[i], passphraseArray[j]] = [passphraseArray[j], passphraseArray[i]];
+    }
+    const passphrase = passphraseArray.join('');
+    try {
+        cryptoUtils.validatePassphrase(passphrase);
+        return passphrase;
+    } catch (error) {
+        console.warn('Generated passphrase failed validation, regenerating:', error.message);
+        return generateSecurePassphrase(length);
+    }
+}
 
 // Input oculto para la carga de imágenes
 const fileInput = document.createElement('input');
@@ -77,14 +102,12 @@ let cameraTimeoutId = null;
 // Función para limpiar un ArrayBuffer o Uint8Array
 const clearBuffer = (buffer) => {
     if (buffer instanceof ArrayBuffer) {
-        // Si es un ArrayBuffer, creamos un Uint8Array para sobrescribirlo
         const zeros = new Uint8Array(buffer.byteLength);
         new Uint8Array(buffer).set(zeros);
     } else if (buffer instanceof Uint8Array || buffer instanceof Int32Array || buffer instanceof Float32Array) {
-        // Si es un TypedArray, lo sobrescribimos con ceros
         buffer.fill(0);
     } else {
-        console.warn("clearBuffer: The object is not an ArrayBuffer or a TypedArray. It cannot be cleared.");
+        console.warn("clearBuffer: El objeto no es un ArrayBuffer ni un TypedArray. No se puede limpiar.");
     }
 };
 
@@ -119,34 +142,6 @@ const showComingSoonMessage = () => {
         domElements.comingSoonMessage.classList.remove('visible');
     }, 2000);
 };
-
-// Event listeners
-document.addEventListener('DOMContentLoaded', showTutorialModal);
-domElements.closeTutorial.addEventListener('click', closeTutorialModal);
-domElements.closeModalButton.addEventListener('click', closeTutorialModal);
-domElements.dontShowAgain.addEventListener('click', setDontShowAgain);
-
-// Event listeners para los botones de "Coming Soon"
-domElements.scanButton.addEventListener('click', showComingSoonMessage);
-domElements.imageButton.addEventListener('click', showComingSoonMessage);
-domElements.pdfButton.addEventListener('click', showComingSoonMessage);
-
-// Habilitar botones dinámicamente
-domElements.scanButton.disabled = false;
-domElements.imageButton.disabled = false;
-domElements.pdfButton.disabled = false;
-
-// Deshabilitar decodeButton inicialmente
-domElements.decodeButton.disabled = true;
-
-// Habilitar decodeButton cuando se cargue un archivo
-fileInput.addEventListener('change', () => {
-    if (fileInput.files.length > 0) {
-        domElements.decodeButton.disabled = false;
-    } else {
-        domElements.decodeButton.disabled = true;
-    }
-});
 
 // Utilidades criptográficas
 const cryptoUtils = {
@@ -221,7 +216,7 @@ const cryptoUtils = {
             ['sign', 'verify']
         );
 
-        clearBuffer(derivedBitsArray); // Limpiar la memoria
+        clearBuffer(derivedBitsArray);
         return { aesKey, hmacKey };
     },
 
@@ -268,11 +263,10 @@ const cryptoUtils = {
         } catch (error) {
             throw new Error('Encryption failed: ' + error.message);
         } finally {
-            // Limpiar buffers sensibles
             if (dataToEncrypt) clearBuffer(dataToEncrypt);
             if (salt) clearBuffer(salt);
             if (iv) clearBuffer(iv);
-            passphrase = null; // Eliminar la referencia a la passphrase
+            passphrase = null;
         }
     },
 
@@ -327,11 +321,10 @@ const cryptoUtils = {
             await new Promise(resolve => setTimeout(resolve, decryptAttempts * CONFIG.DECRYPT_DELAY_INCREMENT));
             throw new Error('Decryption failed: ' + error.message);
         } finally {
-            // Limpiar buffers sensibles
             if (salt) clearBuffer(salt);
             if (iv) clearBuffer(iv);
             if (decrypted) clearBuffer(decrypted);
-            passphrase = null; // Eliminar la referencia a la passphrase
+            passphrase = null;
         }
     }
 };
@@ -347,20 +340,18 @@ const uiController = {
             <div class="message-time">${new Date().toLocaleTimeString()}</div>
         `;
 
-        // Eliminar el placeholder si existe y es el primer mensaje
         if (!isSent && messagesDiv.children.length === 0) {
             messagesDiv.querySelector('.message-placeholder')?.remove();
         }
 
-        // Limitar a 7 mensajes
         const maxMessages = 7;
         if (messagesDiv.children.length >= maxMessages) {
-            messagesDiv.removeChild(messagesDiv.firstChild); // Eliminar el mensaje más antiguo
+            messagesDiv.removeChild(messagesDiv.firstChild);
         }
 
-        // Agregar el nuevo mensaje
         messagesDiv.appendChild(messageEl);
-        messagesDiv.scrollTop = messagesDiv.scrollHeight; // Desplazar al final
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        return messageEl; // Devolver el elemento para poder eliminarlo más tarde
     },
 
     generateQR: async (data) => {
@@ -607,31 +598,93 @@ const handlers = {
     }
 };
 
-// Event listeners
-domElements.uploadArrowButton.addEventListener('click', handlers.handleUploadArrow);
-domElements.sendButton.addEventListener('click', handlers.handleEncrypt);
-domElements.decodeButton.addEventListener('click', handlers.handleDecrypt);
-domElements.downloadButton.addEventListener('click', handlers.handleDownload);
-domElements.shareButton.addEventListener('click', handlers.handleShare);
-fileInput.addEventListener('change', handlers.handleDecrypt);
+// Event listeners cargados después del DOM
+document.addEventListener('DOMContentLoaded', () => {
+    // Generar contraseña al hacer clic en el ícono
+    const generateButton = document.querySelector('.generate-password');
+    if (generateButton) {
+        generateButton.addEventListener('click', () => {
+            const passphraseField = domElements.passphraseInput;
+            const securePassphrase = generateSecurePassphrase(16);
+            passphraseField.value = securePassphrase;
+            passphraseField.dispatchEvent(new Event('input'));
 
-// Validación visual de la passphrase
-domElements.passphraseInput.addEventListener('input', (e) => {
-    const passphrase = e.target.value;
-    const keyIcon = domElements.passphraseInput.parentElement.querySelector('.icon');
-
-    if (passphrase.length === 0) {
-        keyIcon.style.color = 'rgba(160, 160, 160, 0.6)';
-    } else if (passphrase.length < CONFIG.MIN_PASSPHRASE_LENGTH) {
-        keyIcon.style.color = 'var(--error-color)';
+            // Mostrar la contraseña en el log y eliminarla después de 10 segundos
+            const messageEl = uiController.displayMessage(`Generated: ${securePassphrase}`, true);
+            setTimeout(() => {
+                if (messageEl && messageEl.parentNode) {
+                    messageEl.parentNode.removeChild(messageEl);
+                }
+            }, 10000); // 10 segundos
+        });
     } else {
-        try {
-            cryptoUtils.validatePassphrase(passphrase);
-            keyIcon.style.color = 'var(--success-color)';
-        } catch (error) {
-            keyIcon.style.color = 'var(--error-color)';
-        }
+        console.error('Element with class "generate-password" not found');
     }
+
+    // charCounter
+    const charCounter = document.getElementById('char-counter');
+    domElements.messageInput.addEventListener('input', () => {
+        const currentLength = domElements.messageInput.value.length;
+        const maxLength = domElements.messageInput.getAttribute('maxlength');
+        charCounter.textContent = `${currentLength}/${maxLength}`;
+        if (currentLength >= maxLength * 0.9) {
+            charCounter.style.color = 'var(--error-color)';
+        } else {
+            charCounter.style.color = 'rgba(160, 160, 160, 0.8)';
+        }
+    });
+
+    // Otros eventos
+    domElements.uploadArrowButton.addEventListener('click', handlers.handleUploadArrow);
+    domElements.sendButton.addEventListener('click', handlers.handleEncrypt);
+    domElements.decodeButton.addEventListener('click', handlers.handleDecrypt);
+    domElements.downloadButton.addEventListener('click', handlers.handleDownload);
+    domElements.shareButton.addEventListener('click', handlers.handleShare);
+    fileInput.addEventListener('change', handlers.handleDecrypt);
+
+    // Validación visual de la passphrase
+    domElements.passphraseInput.addEventListener('input', (e) => {
+        const passphrase = e.target.value;
+        const keyIcon = domElements.passphraseInput.parentElement.querySelector('.fa-key');
+        if (passphrase.length === 0) {
+            keyIcon.style.color = 'rgba(160, 160, 160, 0.6)';
+        } else if (passphrase.length < CONFIG.MIN_PASSPHRASE_LENGTH) {
+            keyIcon.style.color = 'var(--error-color)';
+        } else {
+            try {
+                cryptoUtils.validatePassphrase(passphrase);
+                keyIcon.style.color = 'var(--success-color)';
+            } catch (error) {
+                keyIcon.style.color = 'var(--error-color)';
+            }
+        }
+    });
+
+    // Eventos del tutorial y "Coming Soon"
+    showTutorialModal();
+    domElements.closeTutorial.addEventListener('click', closeTutorialModal);
+    domElements.closeModalButton.addEventListener('click', closeTutorialModal);
+    domElements.dontShowAgain.addEventListener('click', setDontShowAgain);
+    domElements.scanButton.addEventListener('click', showComingSoonMessage);
+    domElements.imageButton.addEventListener('click', showComingSoonMessage);
+    domElements.pdfButton.addEventListener('click', showComingSoonMessage);
+
+    // Habilitar botones dinámicamente
+    domElements.scanButton.disabled = false;
+    domElements.imageButton.disabled = false;
+    domElements.pdfButton.disabled = false;
+
+    // Deshabilitar decodeButton inicialmente
+    domElements.decodeButton.disabled = true;
+
+    // Habilitar decodeButton cuando se cargue un archivo
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length > 0) {
+            domElements.decodeButton.disabled = false;
+        } else {
+            domElements.decodeButton.disabled = true;
+        }
+    });
 });
 
 // Detener la cámara al salir de la página si está activa
