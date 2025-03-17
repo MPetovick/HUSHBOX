@@ -1,3 +1,4 @@
+
 :root {
     --primary-color: #00cc99;
     --secondary-color: #2a2a2a;
@@ -118,12 +119,32 @@ body {
 
 .input-group .icon {
     position: absolute;
-    right: 1rem;
     top: 50%;
     transform: translateY(-50%);
     color: rgba(160, 160, 160, 0.6);
     font-size: clamp(1rem, 2vw, 1.2rem);
     transition: color 0.3s ease;
+}
+
+/* Estilos específicos para el campo passphrase */
+.input-group #passphrase ~ .fa-key {
+    right: 3rem;
+}
+
+.input-group #passphrase ~ .fa-dice {
+    right: 1rem;
+    cursor: pointer;
+}
+
+.input-group #passphrase ~ .fa-dice:hover {
+    color: var(--primary-color);
+}
+
+/* Estilos específicos para el campo message-input */
+.input-group #message-input ~ .fa-comment-dots {
+    right: 1rem;
+    top: calc(1rem + 0.5rem); /* Ajustado para alinearse con el texto en el textarea */
+    transform: none; /* Elimina translateY porque el textarea tiene varias líneas */
 }
 
 #passphrase, #message-input {
@@ -259,9 +280,8 @@ body {
     justify-content: flex-start;
     overflow-x: hidden;
     overflow-y: auto;
-    min-height: 20vh; /* Altura mínima relativa al viewport */
-    max-height: calc(100% - 2rem); /* Altura máxima basada en el contenedor padre menos un margen */
-    flex-grow: 1;
+    min-height: 20vh;
+    max-height: calc(100% - 2rem);
 }
 
 .message {
