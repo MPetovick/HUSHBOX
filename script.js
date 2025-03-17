@@ -84,7 +84,7 @@ const clearBuffer = (buffer) => {
         // Si es un TypedArray, lo sobrescribimos con ceros
         buffer.fill(0);
     } else {
-        console.warn("clearBuffer: El objeto no es un ArrayBuffer ni un TypedArray. No se puede limpiar.");
+        console.warn("clearBuffer: The object is not an ArrayBuffer or a TypedArray. It cannot be cleared.");
     }
 };
 
