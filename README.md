@@ -152,7 +152,7 @@ This workflow enables secure communication through untrusted platforms while mai
 ## ⚠️ Security Considerations
 
 ### Best Practices
-- Use 15+ character passphrases
+- Use 12+ character passphrases
 - Share passphrases through secure channels
 - Verify QR source before scanning
 - Limit decryption attempts
