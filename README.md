@@ -122,7 +122,7 @@ sequenceDiagram
 ```
 
 1. **Secure Creation Phase:**
-   - User A crafts message + 15+ character passphrase
+   - User A crafts message + 12 + character passphrase
    - HUSHBOX performs AES-256 encryption with time-stamped IV
    - Generates branded QR with anti-scanning protection
 
@@ -152,7 +152,7 @@ This workflow enables secure communication through untrusted platforms while mai
 ## ⚠️ Security Considerations
 
 ### Best Practices
-- Use 12+ character passphrases
+- Use 15+ character passphrases
 - Share passphrases through secure channels
 - Verify QR source before scanning
 - Limit decryption attempts
