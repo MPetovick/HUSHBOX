@@ -189,7 +189,7 @@ body {
     letter-spacing: 1px;
 }
 
-.btn-primary:hover {
+.btn-primary:hover:not(:disabled) {
     background: #00b386;
     transform: translateY(-2px);
     box-shadow: 0 4px 16px var(--glow-color);
@@ -197,9 +197,10 @@ body {
 
 .btn-primary:disabled {
     background: #666;
-    cursor: not-allowed;
+    cursor: default;
     transform: none;
     box-shadow: none;
+    opacity: 0.7;
 }
 
 .btn-secondary {
@@ -304,8 +305,8 @@ body {
 }
 
 .message-content {
-    display: inline-block;
-    max-width: 100%;
+    display: flex;
+    align-items: center;
     padding: 0.5rem 1rem;
     background: rgba(0, 204, 153, 0.1);
     border-radius: 8px;
@@ -348,14 +349,35 @@ body {
     height: 40px;
 }
 
-.btn-icon:hover {
+.btn-icon:hover:not(:disabled) {
     background: var(--primary-color);
     color: #1a1a1a;
     box-shadow: 0 2px 8px var(--glow-color);
 }
 
+.btn-icon:disabled {
+    background: rgba(102, 102, 102, 0.3); /* Gris apagado */
+    border: 1px solid rgba(160, 160, 160, 0.3); /* Borde menos prominente */
+    color: rgba(160, 160, 160, 0.5); /* Color desvaído */
+    cursor: default; /* Cursor normal, no pointer */
+    box-shadow: none; /* Sin sombra */
+    opacity: 0.6; /* Ligeramente transparente */
+    pointer-events: auto; /* Permitir clics para "Coming Soon" */
+}
+
+.btn-icon:disabled:hover {
+    background: rgba(102, 102, 102, 0.3); /* Sin cambio al hover */
+    color: rgba(160, 160, 160, 0.5);
+    box-shadow: none;
+    transform: none; /* Sin animación */
+}
+
 .btn-icon i {
     font-size: 1.2rem;
+}
+
+.btn-icon:disabled i {
+    color: rgba(160, 160, 160, 0.5);
 }
 
 .social-icon {
@@ -775,4 +797,34 @@ body {
 
 .hidden {
     display: none;
+}
+
+/* Estilo para el ícono de copiar en el mensaje */
+.copy-icon {
+    font-size: 0.9rem;
+    color: var(--primary-color);
+    cursor: pointer;
+    margin-left: 0.5rem;
+    transition: color 0.3s ease;
+}
+
+.copy-icon:hover {
+    color: #00b386; /* Un tono más oscuro al pasar el ratón */
+}
+
+/* Ajuste para el contenedor del mensaje con ícono */
+.message-content {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background: rgba(0, 204, 153, 0.1);
+    border-radius: 8px;
+    font-size: clamp(0.9rem, 2vw, 1rem);
+    word-break: break-all;
+}
+
+/* Asegurar que el texto de la contraseña no se desborde */
+.passphrase-text {
+    flex-grow: 1;
+    word-break: break-all;
 }
