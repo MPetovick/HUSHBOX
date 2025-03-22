@@ -44,6 +44,19 @@ body {
     text-shadow: 0 0 10px var(--glow-color);
     animation: pulseGlow 4s infinite;
     position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.white-text {
+    color: white;
+}
+
+.qr-icon {
+    color: white;
+    font-size: 0.85em;
+    vertical-align: -0.15em;
+    margin: 0 2px;
 }
 
 .lock-icon {
