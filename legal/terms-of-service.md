@@ -1,10 +1,10 @@
-# Términos de Servicio de HushBox Enterprise
+# Términos de Servicio de HushBox
 
 **Efectivo a partir de:** 14 de junio de 2025
 
 ## 1. Aceptación de Términos
 
-Al utilizar HushBox Enterprise ("la Aplicación"), usted acepta cumplir con estos Términos de Servicio.
+Al utilizar HushBox ("la Aplicación"), usted acepta cumplir con estos Términos de Servicio.
 
 ## 2. Licencia de Uso
 
@@ -28,7 +28,7 @@ Todos los derechos de propiedad intelectual sobre:
 - Documentación técnica
 - Logotipos y marcas
 
-son propiedad exclusiva de HushBox Enterprise y sus licenciantes.
+son propiedad exclusiva de HushBox y sus licenciantes.
 
 ## 5. Renuncia de Garantías
 
@@ -39,7 +39,7 @@ son propiedad exclusiva de HushBox Enterprise y sus licenciantes.
 
 ## 6. Limitación de Responsabilidad
 
-En ningún caso HushBox Enterprise será responsable por:
+En ningún caso HushBox será responsable por:
 - Daños indirectos, incidentales o consecuentes
 - Pérdida de datos o beneficios
 - Incapacidad de uso relacionada con la Aplicación
