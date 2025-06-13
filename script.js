@@ -16,21 +16,9 @@
  * 2. Ephemeral key lifecycle
  * 3. Constant-time operations
  * 4. Memory-hardened encryption
- * 
- * Copyright © 2025 HushBox Technologies. All Rights Reserved.
- * 
- * License:
- * AGPL-3.0 - https://www.gnu.org/licenses/agpl-3.0.en.html
- * 
- * Compliance:
- * - NIST SP 800-131A Rev. 2
- * - FIPS 140-2 Level 1
- * - GDPR Article 32
- * 
- * MikePetovick Security Signature:
- * - Biometric-inspired key derivation
- * - Quantum-resistant algorithms
- * - Secure memory wiping
+
+/* SPDX-License-Identifier: AGPL-3.0-only */
+/* Copyright (C) 2025 HushBox Enterprise */
  * ===========================================================================
  */
 
