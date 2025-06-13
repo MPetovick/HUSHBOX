@@ -1,6 +1,6 @@
 # Licencia Pública General Affero de GNU v3.0
 
-Copyright (C) 2025 HushBox Enterprise
+Copyright (C) 2025 HushBox
 
 Este programa es software libre: usted puede redistribuirlo y/o modificarlo bajo los términos de la Licencia Pública General Affero de GNU publicada por la Free Software Foundation, ya sea la versión 3 de la Licencia, o (a su elección) cualquier versión posterior.
 
@@ -10,7 +10,7 @@ Debería haber recibido una copia de la Licencia Pública General Affero de GNU 
 
 ---
 
-## Condiciones Específicas para HushBox Enterprise
+## Condiciones Específicas para HushBox
 
 ### 1. Requisitos de Distribución
 Al distribuir versiones modificadas de este software, debe:
