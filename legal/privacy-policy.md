@@ -1,14 +1,14 @@
-# Política de Privacidad de HushBox Enterprise
+# Política de Privacidad de HushBox
 
 **Última actualización:** 14 de junio de 2025
 
 ## 1. Introducción
 
-HushBox Enterprise ("nosotros", "nuestro", o "la Aplicación") es una aplicación de mensajería segura basada en navegador web. Esta Política de Privacidad explica cómo manejamos su información cuando utiliza nuestro servicio.
+HushBox ("nosotros", "nuestro", o "la Aplicación") es una aplicación de mensajería segura basada en navegador web. Esta Política de Privacidad explica cómo manejamos su información cuando utiliza nuestro servicio.
 
 ## 2. No Recolección de Datos
 
-**HushBox Enterprise no recopila, almacena ni transmite ningún dato personal o de usuario.** La aplicación funciona completamente en su dispositivo (cliente) sin involucrar servidores externos.
+**HushBox no recopila, almacena ni transmite ningún dato personal o de usuario.** La aplicación funciona completamente en su dispositivo (cliente) sin involucrar servidores externos.
 
 - **Mensajes y Contenido:** Todo el procesamiento de mensajes ocurre localmente en su dispositivo
 - **Credenciales:** Las contraseñas y claves de cifrado nunca abandonan su dispositivo
