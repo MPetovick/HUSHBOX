@@ -43,7 +43,7 @@ graph TD
     D --> G
     G --> H[Message History]
     C & D --> I[AES-256-GCM Cryptography]
-    I --> J[PBKDF2 Key Derivation]
+    I --> J[PBKDF2 Key Derivation + HMAC]
 ```
 ### Encryption flow
 ```mermaid
