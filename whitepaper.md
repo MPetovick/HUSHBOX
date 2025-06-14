@@ -146,6 +146,6 @@ HUSHBOX redefines secure communication by returning control of privacy to users 
 As surveillance capitalism and quantum computing advance, HUSHBOX provides an uncompromising solution for those who demand true privacy.  
   
 ---
-**Copyright © 2025 HushBox Technologies**  
+**Copyright © 2025 HushBox**  
 **AGPL-3.0 License**  
 *"In a world of digital shadows, be the lock."*
