@@ -1,72 +1,63 @@
-# Política de Privacidad de HushBox
+# HushBox Privacy Policy
 
-**Última actualización:** 14 de junio de 2025
+**Last Updated:** June 14, 2025
 
-## 1. Introducción
+## 1. Introduction
+HushBox ("we", "our", or "the Application") is a secure web-based messaging application. This Privacy Policy explains how we handle your information when you use our service.
 
-HushBox ("nosotros", "nuestro", o "la Aplicación") es una aplicación de mensajería segura basada en navegador web. Esta Política de Privacidad explica cómo manejamos su información cuando utiliza nuestro servicio.
+## 2. No Data Collection
+**HushBox does not collect, store, or transmit any personal or user data.** The application operates entirely on your device (client-side) without involving external servers.
 
-## 2. No Recolección de Datos
+- **Messages and Content:** All message processing occurs locally on your device
+- **Credentials:** Passwords and encryption keys never leave your device
+- **Metadata:** We do not generate or store communication metadata
 
-**HushBox no recopila, almacena ni transmite ningún dato personal o de usuario.** La aplicación funciona completamente en su dispositivo (cliente) sin involucrar servidores externos.
+## 3. Local Storage
+The application may store locally on your device:
+- Message history (optional, under your control)
+- Configuration preferences
+- Local security certificate
 
-- **Mensajes y Contenido:** Todo el procesamiento de mensajes ocurre localmente en su dispositivo
-- **Credenciales:** Las contraseñas y claves de cifrado nunca abandonan su dispositivo
-- **Metadatos:** No generamos ni almacenamos metadatos de comunicación
+This data:
+- Is never transmitted externally
+- Can be deleted anytime using the "Clear History" function
+- Is stored encrypted when technically possible
 
-## 3. Almacenamiento Local
+## 4. Camera Usage
+The QR scanning feature:
+- Requires access to your camera
+- Processes images exclusively on your device
+- **Does not store, transmit, or externally process camera images**
 
-La aplicación puede almacenar localmente en su dispositivo:
-- Historial de mensajes (opcional, bajo su control)
-- Preferencias de configuración
-- Certificado de seguridad local
+## 5. Third-Party Libraries
+We use these open-source libraries:
+- **pako:** Data compression ([Policy](https://github.com/nodeca/pako))
+- **qrcode.js:** QR generation ([Policy](https://github.com/soldair/node-qrcode))
+- **jsQR:** QR scanning ([Policy](https://github.com/cozmo/jsQR))
+- **jsPDF:** PDF generation ([Policy](https://github.com/parallax/jsPDF))
+- **zxcvbn:** Password strength measurement ([Policy](https://github.com/dropbox/zxcvbn))
 
-Estos datos:
-- Nunca se transmiten externamente
-- Pueden borrarse en cualquier momento mediante la función "Limpiar historial"
-- Se almacenan cifrados cuando es técnicamente posible
+## 6. External Links
+The application contains links to:
+- Our Telegram channel
+- Our Twitter account
+- Technical documentation
+- Support contact
 
-## 4. Uso de la Cámara
+These external sites are not operated by us. We recommend reviewing their privacy policies.
 
-La función de escaneo de QR:
-- Requiere acceso a su cámara
-- Procesa imágenes exclusivamente en su dispositivo
-- **No almacena, transmite ni procesa externamente imágenes de la cámara**
+## 7. Data Security
+We implement:
+- AES-256-GCM encryption with HMAC-SHA256
+- PBKDF2 key derivation with high iteration count
+- Secure erasure of sensitive data
+- Security certificate HBX-SEC-2025-08
 
-## 5. Bibliotecas de Terceros
-
-Utilizamos estas bibliotecas de código abierto:
-- **pako:** Compresión de datos ([Política](https://github.com/nodeca/pako))
-- **qrcode.js:** Generación de QR ([Política](https://github.com/soldair/node-qrcode))
-- **jsQR:** Escaneo de QR ([Política](https://github.com/cozmo/jsQR))
-- **jsPDF:** Generación de PDF ([Política](https://github.com/parallax/jsPDF))
-- **zxcvbn:** Medición de fortaleza de contraseñas ([Política](https://github.com/dropbox/zxcvbn))
-
-## 6. Enlaces Externos
-
-La aplicación contiene enlaces a:
-- Nuestro canal de Telegram
-- Nuestra cuenta de Twitter
-- Documentación técnica
-- Contacto de soporte
-
-Estos sitios externos no son operados por nosotros. Le recomendamos revisar sus políticas de privacidad.
-
-## 7. Seguridad de Datos
-
-Implementamos:
-- Cifrado AES-256-GCM con HMAC-SHA256
-- Derivación de claves PBKDF2 con alto número de iteraciones
-- Borrado seguro de datos sensibles
-- Certificado de seguridad HBX-SEC-2025-08
-
-## 8. Cambios a esta Política
-
-Actualizaremos esta política cuando sea necesario. La versión vigente siempre estará disponible en:
+## 8. Changes to This Policy
+We will update this policy when necessary. The current version will always be available at:  
 `https://hushbox.com/privacy`
 
-## 9. Contacto
-
-Para preguntas sobre privacidad:  
+## 9. Contact
+For privacy questions:  
 Email: privacy@hushbox.com  
-Clave PGP: `0x1A2B3C4D5E6F7890`
+PGP Key: `0x1A2B3C4D5E6F7890`
