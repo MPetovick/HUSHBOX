@@ -58,5 +58,5 @@ These Terms shall be governed by Swiss law, without regard to its conflict of la
 
 ## 11. Contact
 For legal inquiries:  
-Email: legal@hushbox.com  
+Email: hushbox.online@pm.me 
 Address: HushBox GmbH, Zugerstrasse 12, 6300 Zug, Switzerland
