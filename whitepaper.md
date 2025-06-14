@@ -144,10 +144,7 @@ HUSHBOX redefines secure communication by returning control of privacy to users 
 3. **Zero-trust architecture** eliminating server vulnerabilities  
 
 As surveillance capitalism and quantum computing advance, HUSHBOX provides an uncompromising solution for those who demand true privacy.  
-
-**Join the Revolution:**  
-[GitHub](https://github.com/MPetovick/HUSHBOX) | [Live Demo](https://hushbox.online) | [Security Audit Report](https://hushbox.online/audit)  
-
+  
 ---
 **Copyright © 2025 HushBox Technologies**  
 **AGPL-3.0 License**  
