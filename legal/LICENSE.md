@@ -19,7 +19,7 @@ When distributing modified versions of this software, you must:
 - Include the original copyright notice
 
 ### 2. Commercial Use
-Commercial use requires a separate license agreement. Contact licensing@hushbox.com
+Commercial use requires a separate license agreement. Contact hushbox.online@pm.me
 
 ### 3. Trademark Exemptions
 This license **does not grant rights** to:
