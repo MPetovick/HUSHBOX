@@ -1,73 +1,62 @@
-# Términos de Servicio de HushBox
+# HushBox Terms of Service
 
-**Efectivo a partir de:** 14 de junio de 2025
+**Effective Date:** June 14, 2025
 
-## 1. Aceptación de Términos
+## 1. Acceptance of Terms
+By using HushBox ("the Application"), you agree to comply with these Terms of Service.
 
-Al utilizar HushBox ("la Aplicación"), usted acepta cumplir con estos Términos de Servicio.
+## 2. License Grant
+We grant you a limited, non-exclusive, non-transferable, revocable license to:
+- Use the Application for legitimate personal or business purposes
+- Install as a Progressive Web App (PWA) on your devices
 
-## 2. Licencia de Uso
+## 3. Restrictions
+You may not:
+- Reverse engineer, decompile, or disassemble the Application
+- Use the Application for illegal or unauthorized activities
+- Attempt to bypass security or authentication measures
+- Commercialize, rent, or resell the Application
 
-Le otorgamos una licencia limitada, no exclusiva, intransferible y revocable para:
-- Usar la Aplicación con fines personales o empresariales legítimos
-- Instalar como Progressive Web App (PWA) en sus dispositivos
+## 4. Intellectual Property
+All intellectual property rights to:
+- Source code
+- User interface
+- Technical documentation
+- Logos and trademarks
 
-## 3. Restricciones
+are the exclusive property of HushBox and its licensors.
 
-Usted no podrá:
-- Realizar ingeniería inversa, descompilar o desensamblar la Aplicación
-- Usar la Aplicación para actividades ilegales o no autorizadas
-- Intentar eludir medidas de seguridad o autenticación
-- Comercializar, alquilar o revender la Aplicación
+## 5. Disclaimer of Warranties
+**THE APPLICATION IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND.** We do not guarantee that:
+- The Application will meet your specific requirements
+- The Application will be uninterrupted, secure, or error-free
+- Results obtained through the Application will be accurate or reliable
 
-## 4. Propiedad Intelectual
+## 6. Limitation of Liability
+In no event shall HushBox be liable for:
+- Indirect, incidental, or consequential damages
+- Loss of data or profits
+- Inability to use related to the Application
 
-Todos los derechos de propiedad intelectual sobre:
-- Código fuente
-- Interfaz de usuario
-- Documentación técnica
-- Logotipos y marcas
+## 7. Legal Use
+You agree to:
+- Comply with all applicable laws in your jurisdiction
+- Not use the Application for illegal activities
+- Assume responsibility for cryptographic technology usage per local regulations
 
-son propiedad exclusiva de HushBox y sus licenciantes.
+## 8. Termination
+We may suspend or terminate your access to the Application if:
+- You violate these Terms
+- You use the Application in ways that may create legal liability for us
 
-## 5. Renuncia de Garantías
-
-**La Aplicación se proporciona "TAL CUAL" sin garantías de ningún tipo.** No garantizamos que:
-- La Aplicación cumpla con sus requisitos específicos
-- La Aplicación sea ininterrumpida, segura o libre de errores
-- Los resultados obtenidos mediante la Aplicación sean precisos o confiables
-
-## 6. Limitación de Responsabilidad
-
-En ningún caso HushBox será responsable por:
-- Daños indirectos, incidentales o consecuentes
-- Pérdida de datos o beneficios
-- Incapacidad de uso relacionada con la Aplicación
-
-## 7. Uso Legal
-
-Usted se compromete a:
-- Cumplir con todas las leyes aplicables en su jurisdicción
-- No utilizar la Aplicación para actividades ilegales
-- Responsabilizarse del uso de tecnologías criptográficas según las regulaciones locales
-
-## 8. Terminación
-
-Podemos suspender o terminar su acceso a la Aplicación si:
-- Viola estos Términos
-- Utiliza la Aplicación de manera que pueda crear responsabilidad legal para nosotros
-
-## 9. Cambios en los Términos
-
-Nos reservamos el derecho de modificar estos Términos. Las versiones actualizadas estarán disponibles en:
+## 9. Changes to Terms
+We reserve the right to modify these Terms. Updated versions will be available at:  
 `https://hushbox.com/terms`
 
-## 10. Ley Aplicable
+## 10. Governing Law
+These Terms shall be governed by Swiss law, without regard to its conflict of laws provisions.
 
-Estos Términos se regirán por las leyes de Suiza, sin considerar sus conflictos de disposiciones legales.
-
-## 11. Contacto
-
-Para consultas legales:  
+## 11. Contact
+For legal inquiries:  
 Email: legal@hushbox.com  
-Dirección: HushBox GmbH, Zugerstrasse 12, 6300 Zug, Suiza
+Address: HushBox GmbH, Zugerstrasse 12, 6300 Zug, Switzerland
