@@ -464,8 +464,7 @@ pie
 - **Zero Infrastructure Costs**: No servers to maintain  
 - **Compliance Ready**: Meets GDPR/HIPAA requirements  
 - **Employee Training**: <15 minute onboarding  
-- **Security Certification**: HBX-SEC-2025-08 compliant  
-- **24/7 Support**: Enterprise SLA with 15-min response  
+- **Security Certification**: HBX-SEC-2025-08 compliant   
 
 ---
 
