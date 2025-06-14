@@ -59,5 +59,5 @@ We will update this policy when necessary. The current version will always be av
 
 ## 9. Contact
 For privacy questions:  
-Email: privacy@hushbox.com  
+Email: hushbox.online@pm.me 
 PGP Key: `0x1A2B3C4D5E6F7890`
