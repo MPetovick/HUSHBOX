@@ -500,6 +500,6 @@ GNU AFFERO GENERAL PUBLIC LICENSE - [View License](https://github.com/MPetovick/
 
 <div align="center">
   <br>
-  <strong>Your Secrets Deserve Better Than the Cloud</strong> ☁️❌<br>
+  <strong>Privacy That Never Leaves Your Hands</strong> ♾️🔐<br>
   <strong>Try HUSHBOX Today → </strong> <a href="https://www.hushbox.online">www.hushbox.online</a><br>
 </div>
