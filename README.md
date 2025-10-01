@@ -271,7 +271,8 @@ graph TB
 
 ## 🎯 Use Case Examples
 
-### Crypto Wallet Backup [MnemoniQR](https://mnemoniqr.vercel.app/)
+### Crypto Wallet Backup
+[MnemoniQR](https://mnemoniqr.vercel.app/)
 ```mermaid
 flowchart LR
     Seed[Wallet Seed] --> HUSHBOX
@@ -323,6 +324,13 @@ Found a bug or security vulnerability? Please report via:
 - **Email**: hushbox.online@pm.me
 - **GitHub Issues**: [Create Issue](https://github.com/MPetovick/HUSHBOX/issues)
 
+## 🚀 Quick Start
+1. Visit **[hushbox.online](https://www.hushbox.online)**
+2. Encrypt your first message in under 60 seconds
+3. Experience truly private communication
+
+---
+
 ## 🌐 Contact & Community  
 - **Telegram**: [HUSHBOX Channel](https://t.me/HUSHBOX_QR)
 - **Twitter**: [@HUSHBOXonline](https://twitter.com/HUSHBOXonline)
@@ -337,12 +345,5 @@ Found a bug or security vulnerability? Please report via:
   <strong>Try HUSHBOX → </strong> <a href="https://www.hushbox.online">www.hushbox.online</a><br>
   <em>Because your secrets should stay yours</em>
 </div>
-
-## 🚀 Quick Start
-1. Visit **[hushbox.online](https://www.hushbox.online)**
-2. Encrypt your first message in under 60 seconds
-3. Experience truly private communication
-
----
 
 *HUSHBOX v3.2.2 | Security Certificate: HBX-SEC-2025-08 | Built with ❤️ for the privacy-conscious*
