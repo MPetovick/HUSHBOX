@@ -346,4 +346,6 @@ Found a bug or security vulnerability? Please report via:
   <em>Because your secrets should stay yours</em>
 </div>
 
+---
+
 *HUSHBOX v3.2.2 | Security Certificate: HBX-SEC-2025-08 | Built with ❤️ for the privacy-conscious*
