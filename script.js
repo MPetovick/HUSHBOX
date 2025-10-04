@@ -1,21 +1,16 @@
 /*!
  * ===========================================================================
- * HUSHBOX ENTERPRISE CORE ENGINE v3.2.2
+ * HUSHBOX ENTERPRISE CORE ENGINE v3.2.2 - FASE 1 SEGURIDAD
  * ===========================================================================
  * 
- * Cryptographic Architecture:
- * - AES-256-GCM with HMAC-SHA256 authentication
- * - PBKDF2 key derivation (310,000 iterations)
- * - Zero-knowledge message protocol
+ * Mejoras de Seguridad Fase 1:
+ * 1. ✅ Sanitización robusta contra XSS
+ * 2. ✅ Encriptación del historial local
+ * 3. ✅ Rate limiting para desencriptación
+ * 4. ✅ Validación de entrada robusta
  * 
  * Developed by: MikePetovick
  * Security Lead: HushBox Cryptography Team
- * 
- * Key Design Principles:
- * 1. Client-side only processing
- * 2. Ephemeral key lifecycle
- * 3. Constant-time operations
- * 4. Memory-hardened encryption
  
  SPDX-License-Identifier: AGPL-3.0-only
  Copyright (C) 2025 HushBox Enterprise 
@@ -39,9 +34,12 @@ const CONFIG = {
   NOTICE_TIMEOUT: 8000,
   SESSION_TIMEOUT: 1800000, // 30 minutes
   COMPRESSION_THRESHOLD: 100,
-  HISTORY_STORAGE_KEY: 'hushbox_message_history',
+  HISTORY_STORAGE_KEY: 'hushbox_encrypted_history',
+  HISTORY_KEY_DERIVATION_SALT: 'hushbox_history_salt_v1',
   AUTO_WIPE: 0, // Minutes, 0 = disabled
-  QR_ERROR_CORRECTION: 'H'
+  QR_ERROR_CORRECTION: 'H',
+  RATE_LIMIT_BASE_DELAY: 1000,
+  RATE_LIMIT_MAX_DELAY: 30000
 };
 
 // DOM elements with enhanced error handling
@@ -124,9 +122,11 @@ const appState = {
   sessionTimer: null,
   importingHistory: false,
   decryptAttempts: 0,
-  securityLevel: 'high', // high, medium, low
+  lastDecryptAttempt: 0,
+  securityLevel: 'high',
   cameraStream: null,
-  wipeTimer: null
+  wipeTimer: null,
+  rateLimitDelay: 0
 };
 
 // Configuración por defecto
@@ -136,6 +136,261 @@ const DEFAULT_CONFIG = {
   SESSION_TIMEOUT: 30,
   AUTO_WIPE: 0,
   QR_ERROR_CORRECTION: 'H'
+};
+
+// ===========================================================================
+// MEJORAS FASE 1 - SEGURIDAD ROBUSTA
+// ===========================================================================
+
+// 1. SANITIZACIÓN ROBUSTA CONTRA XSS
+const securityUtils = {
+  // Lista de caracteres peligrosos para HTML
+  dangerousPatterns: [
+    /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+    /javascript:/gi,
+    /on\w+\s*=/gi,
+    /expression\s*\(/gi,
+    /url\s*\(/gi,
+    /vbscript:/gi
+  ],
+
+  // Sanitización completa HTML
+  sanitizeHTML: (str) => {
+    if (typeof str !== 'string') return '';
+    
+    // Eliminar caracteres nulos y caracteres de control
+    let clean = str.replace(/\0/g, '')
+                  .replace(/[\x00-\x1F\x7F-\x9F]/g, '');
+    
+    // Escapar caracteres HTML especiales
+    const escapeMap = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#x27;',
+      '/': '&#x2F;',
+      '`': '&#x60;'
+    };
+    
+    clean = clean.replace(/[&<>"'`\/]/g, (char) => escapeMap[char]);
+    
+    // Validar contra patrones peligrosos
+    securityUtils.dangerousPatterns.forEach(pattern => {
+      if (pattern.test(clean)) {
+        clean = clean.replace(pattern, '');
+      }
+    });
+    
+    // Limitar longitud máxima
+    if (clean.length > CONFIG.MAX_MESSAGE_LENGTH * 2) {
+      clean = clean.substring(0, CONFIG.MAX_MESSAGE_LENGTH * 2);
+    }
+    
+    return clean;
+  },
+
+  // Validación de entrada robusta
+  validateInput: (input, type) => {
+    if (typeof input !== 'string') {
+      throw new Error(`Invalid ${type}: must be a string`);
+    }
+
+    const constraints = {
+      passphrase: {
+        minLength: CONFIG.MIN_PASSPHRASE_LENGTH,
+        maxLength: 256,
+        pattern: /^[\x20-\x7E]+$/ // Caracteres ASCII imprimibles
+      },
+      message: {
+        minLength: 1,
+        maxLength: CONFIG.MAX_MESSAGE_LENGTH,
+        pattern: /^[\s\S]*$/ // Cualquier carácter (incluidos saltos de línea)
+      }
+    };
+
+    const constraint = constraints[type];
+    if (!constraint) {
+      throw new Error(`Unknown input type: ${type}`);
+    }
+
+    // Validar longitud
+    if (input.length < constraint.minLength) {
+      throw new Error(`${type} must be at least ${constraint.minLength} characters`);
+    }
+    
+    if (input.length > constraint.maxLength) {
+      throw new Error(`${type} must not exceed ${constraint.maxLength} characters`);
+    }
+
+    // Validar patrón
+    if (constraint.pattern && !constraint.pattern.test(input)) {
+      throw new Error(`Invalid characters in ${type}`);
+    }
+
+    return true;
+  },
+
+  // Rate limiting para desencriptación
+  checkRateLimit: () => {
+    const now = Date.now();
+    const timeSinceLastAttempt = now - appState.lastDecryptAttempt;
+    
+    // Resetear contador si ha pasado mucho tiempo
+    if (timeSinceLastAttempt > 300000) { // 5 minutos
+      appState.decryptAttempts = 0;
+      appState.rateLimitDelay = 0;
+    }
+    
+    // Aplicar delay progresivo
+    if (appState.decryptAttempts > 0) {
+      appState.rateLimitDelay = Math.min(
+        CONFIG.RATE_LIMIT_BASE_DELAY * Math.pow(2, appState.decryptAttempts - 1),
+        CONFIG.RATE_LIMIT_MAX_DELAY
+      );
+      
+      if (timeSinceLastAttempt < appState.rateLimitDelay) {
+        const remaining = Math.ceil((appState.rateLimitDelay - timeSinceLastAttempt) / 1000);
+        throw new Error(`Too many attempts. Please wait ${remaining} seconds.`);
+      }
+    }
+    
+    appState.lastDecryptAttempt = now;
+    
+    // Bloquear después de máximo de intentos
+    if (appState.decryptAttempts >= CONFIG.MAX_DECRYPT_ATTEMPTS) {
+      throw new Error('Maximum decryption attempts reached. Please wait 30 minutes.');
+    }
+  },
+
+  // Incrementar contador de intentos
+  incrementAttempts: () => {
+    appState.decryptAttempts++;
+    appState.lastDecryptAttempt = Date.now();
+  },
+
+  // Resetear rate limiting
+  resetRateLimit: () => {
+    appState.decryptAttempts = 0;
+    appState.rateLimitDelay = 0;
+    appState.lastDecryptAttempt = 0;
+  }
+};
+
+// 2. ENCRIPTACIÓN DEL HISTORIAL LOCAL
+const historyCrypto = {
+  // Derivar clave específica para el historial
+  deriveHistoryKey: async (passphrase) => {
+    const salt = new TextEncoder().encode(CONFIG.HISTORY_KEY_DERIVATION_SALT);
+    const baseKey = await crypto.subtle.importKey(
+      'raw',
+      new TextEncoder().encode(passphrase),
+      { name: 'PBKDF2' },
+      false,
+      ['deriveBits']
+    );
+
+    const derivedBits = await crypto.subtle.deriveBits(
+      {
+        name: 'PBKDF2',
+        salt,
+        iterations: 100000,
+        hash: 'SHA-256'
+      },
+      baseKey,
+      256
+    );
+
+    return crypto.subtle.importKey(
+      'raw',
+      derivedBits,
+      { name: 'AES-GCM' },
+      false,
+      ['encrypt', 'decrypt']
+    );
+  },
+
+  // Encriptar historial
+  encryptHistory: async (history, passphrase) => {
+    try {
+      securityUtils.validateInput(passphrase, 'passphrase');
+      
+      const key = await historyCrypto.deriveHistoryKey(passphrase);
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const data = new TextEncoder().encode(JSON.stringify(history));
+      
+      const encrypted = await crypto.subtle.encrypt(
+        { name: 'AES-GCM', iv },
+        key,
+        data
+      );
+      
+      const combined = new Uint8Array([...iv, ...new Uint8Array(encrypted)]);
+      return btoa(String.fromCharCode(...combined));
+    } catch (error) {
+      console.error('History encryption error:', error);
+      throw new Error('Failed to encrypt history: ' + error.message);
+    }
+  },
+
+  // Desencriptar historial
+  decryptHistory: async (encryptedData, passphrase) => {
+    try {
+      securityUtils.validateInput(passphrase, 'passphrase');
+      
+      const key = await historyCrypto.deriveHistoryKey(passphrase);
+      const encryptedArray = Uint8Array.from(atob(encryptedData), c => c.charCodeAt(0));
+      
+      if (encryptedArray.length < 12) {
+        throw new Error('Invalid encrypted data');
+      }
+      
+      const iv = encryptedArray.slice(0, 12);
+      const data = encryptedArray.slice(12);
+      
+      const decrypted = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv },
+        key,
+        data
+      );
+      
+      const history = JSON.parse(new TextDecoder().decode(decrypted));
+      
+      // Validar estructura del historial
+      if (!Array.isArray(history)) {
+        throw new Error('Invalid history format');
+      }
+      
+      return history;
+    } catch (error) {
+      console.error('History decryption error:', error);
+      throw new Error('Failed to decrypt history: ' + error.message);
+    }
+  },
+
+  // Cargar historial encriptado
+  loadEncryptedHistory: async (passphrase) => {
+    try {
+      const encrypted = localStorage.getItem(CONFIG.HISTORY_STORAGE_KEY);
+      if (!encrypted) return [];
+      
+      return await historyCrypto.decryptHistory(encrypted, passphrase);
+    } catch (error) {
+      console.error('Load history error:', error);
+      throw error;
+    }
+  },
+
+  // Guardar historial encriptado
+  saveEncryptedHistory: async (history, passphrase) => {
+    try {
+      const encrypted = await historyCrypto.encryptHistory(history, passphrase);
+      localStorage.setItem(CONFIG.HISTORY_STORAGE_KEY, encrypted);
+    } catch (error) {
+      console.error('Save history error:', error);
+      throw error;
+    }
+  }
 };
 
 // Cargar configuración guardada
@@ -150,7 +405,6 @@ function loadSettings() {
       CONFIG.AUTO_WIPE = settings.AUTO_WIPE || DEFAULT_CONFIG.AUTO_WIPE;
       CONFIG.QR_ERROR_CORRECTION = settings.QR_ERROR_CORRECTION || DEFAULT_CONFIG.QR_ERROR_CORRECTION;
       
-      // Actualizar UI
       updateSettingsUI();
     } catch (e) {
       console.error('Error loading settings:', e);
@@ -166,7 +420,6 @@ function updateSettingsUI() {
   dom.autoWipeSelect.value = CONFIG.AUTO_WIPE;
   dom.qrErrorCorrectionSelect.value = CONFIG.QR_ERROR_CORRECTION;
   
-  // Actualizar indicador de nivel de seguridad
   const securityLevelElement = document.querySelector('.security-level');
   if (securityLevelElement) {
     securityLevelElement.className = `security-level ${appState.securityLevel}`;
@@ -185,29 +438,21 @@ function saveSettings() {
     QR_ERROR_CORRECTION: dom.qrErrorCorrectionSelect.value
   };
   
-  // Validar valores
   if (settings.PBKDF2_ITERATIONS < 100000) {
     ui.showToast('PBKDF2 iterations must be at least 100,000', 'error');
     return false;
   }
   
-  // Actualizar configuración en tiempo real
   CONFIG.PBKDF2_ITERATIONS = settings.PBKDF2_ITERATIONS;
   appState.securityLevel = settings.SECURITY_LEVEL;
   CONFIG.SESSION_TIMEOUT = settings.SESSION_TIMEOUT * 60000;
   CONFIG.AUTO_WIPE = settings.AUTO_WIPE;
   CONFIG.QR_ERROR_CORRECTION = settings.QR_ERROR_CORRECTION;
   
-  // Guardar en localStorage
   localStorage.setItem('hushbox_settings', JSON.stringify(settings));
-  
-  // Actualizar UI
   updateSettingsUI();
-  
-  // Reiniciar temporizador de sesión
   handlers.resetSessionTimer();
   
-  // Configurar auto-borrado si está habilitado
   if (CONFIG.AUTO_WIPE > 0) {
     clearTimeout(appState.wipeTimer);
     appState.wipeTimer = setTimeout(() => {
@@ -228,16 +473,10 @@ function resetSettings() {
   CONFIG.AUTO_WIPE = DEFAULT_CONFIG.AUTO_WIPE;
   CONFIG.QR_ERROR_CORRECTION = DEFAULT_CONFIG.QR_ERROR_CORRECTION;
   
-  // Actualizar UI
   updateSettingsUI();
-  
-  // Eliminar configuración guardada
   localStorage.removeItem('hushbox_settings');
-  
-  // Reiniciar temporizador de sesión
   handlers.resetSessionTimer();
   
-  // Configurar auto-borrado si está habilitado
   if (CONFIG.AUTO_WIPE > 0) {
     clearTimeout(appState.wipeTimer);
     appState.wipeTimer = setTimeout(() => {
@@ -252,11 +491,21 @@ function resetSettings() {
 // Enhanced cryptographic utilities with additional security measures
 const cryptoUtils = {
   validatePassphrase: (pass) => {
-    if (!pass || pass.length < CONFIG.MIN_PASSPHRASE_LENGTH) {
-      throw new Error(`Password must be at least ${CONFIG.MIN_PASSPHRASE_LENGTH} characters long`);
-    }
+    // Validación básica primero
+    securityUtils.validateInput(pass, 'passphrase');
     
-    // Complexity requirements
+    // Contraseñas comunes prohibidas
+    const commonPasswords = [
+      'password', '123456', 'qwerty', 'letmein', 'welcome',
+      '12345678', 'abc123', 'password1', '12345', '123456789',
+      'admin', 'test', 'guest', 'default'
+    ];
+    
+    if (commonPasswords.includes(pass.toLowerCase())) {
+      throw new Error('Password is too common and easily guessable');
+    }
+
+    // Complejidad mejorada
     const hasUpperCase = /[A-Z]/.test(pass);
     const hasLowerCase = /[a-z]/.test(pass);
     const hasNumbers = /[0-9]/.test(pass);
@@ -266,18 +515,33 @@ const cryptoUtils = {
     if (!hasUpperCase || !hasLowerCase || !hasNumbers || !hasSymbols) {
       throw new Error('Password must include uppercase, lowercase, numbers, and symbols');
     }
+    
     if (uniqueChars < CONFIG.MIN_PASSPHRASE_LENGTH * 0.7) {
       throw new Error('Password has too many repeated characters');
+    }
+    
+    // Patrones secuenciales
+    const sequentialPatterns = [
+      /(.)\1{2,}/, // Caracteres repetidos
+      /(abc|bcd|cde|def|efg|fgh|ghi|hij|ijk|jkl|klm|lmn|mno|nop|opq|pqr|qrs|rst|stu|tuv|uvw|vwx|wxy|xyz)/i,
+      /(123|234|345|456|567|678|789|890)/,
+      /(qwerty|asdfgh|zxcvbn)/i
+    ];
+    
+    for (const pattern of sequentialPatterns) {
+      if (pattern.test(pass.toLowerCase())) {
+        throw new Error('Password contains easily guessable patterns');
+      }
     }
     
     // Use zxcvbn for advanced password strength analysis
     if (typeof zxcvbn !== 'undefined') {
       const result = zxcvbn(pass);
       if (result.score < 3) {
-        throw new Error('Password is too weak');
+        throw new Error('Password is too weak. ' + 
+          (result.feedback.warning || 'Choose a stronger password.'));
       }
       
-      // Update security level based on password strength
       if (result.score >= 4) {
         appState.securityLevel = 'high';
       } else if (result.score >= 2) {
@@ -292,14 +556,23 @@ const cryptoUtils = {
 
   calculatePasswordStrength: (pass) => {
     if (!pass) return 0;
+    
     let strength = 0;
     strength += Math.min(pass.length * 4, 40);
+    
     if (/[A-Z]/.test(pass)) strength += 10;
     if (/[a-z]/.test(pass)) strength += 10;
     if (/[0-9]/.test(pass)) strength += 10;
     if (/[^A-Za-z0-9]/.test(pass)) strength += 15;
+    
+    // Penalizar patrones débiles
     if (/(.)\1{2,}/.test(pass)) strength -= 15;
     if (pass.length < 8) strength -= 30;
+    
+    // Bonus por diversidad de caracteres
+    const unique = new Set(pass).size;
+    strength += Math.min(unique * 2, 20);
+    
     return Math.max(0, Math.min(100, strength));
   },
 
@@ -312,7 +585,7 @@ const cryptoUtils = {
       crypto.getRandomValues(values);
       let pass = Array.from(values, v => chars[v % chars.length]).join('');
 
-      // Ensure complexity requirements
+      // Asegurar complejidad
       if (!/[A-Z]/.test(pass)) pass = 'A' + pass.slice(1);
       if (!/[a-z]/.test(pass)) pass = pass.slice(0, -1) + 'a';
       if (!/[0-9]/.test(pass)) pass = pass.slice(0, -1) + '1';
@@ -348,7 +621,6 @@ const cryptoUtils = {
         wipeArray[i] = 0;
       }
     } else if (typeof buffer === 'string') {
-      // Overwrite string by converting to array
       const strArray = new Uint8Array(new TextEncoder().encode(buffer));
       for (let i = 0; i < strArray.length; i++) {
         strArray[i] = 0;
@@ -396,7 +668,6 @@ const cryptoUtils = {
       ['sign', 'verify']
     );
 
-    // Securely wipe sensitive data
     cryptoUtils.secureWipe(derivedBitsArray);
     cryptoUtils.secureWipe(aesKeyBytes);
     cryptoUtils.secureWipe(hmacKeyBytes);
@@ -412,17 +683,16 @@ const cryptoUtils = {
     let hmacKey = null;
     
     try {
+      // Validaciones de entrada robustas
+      securityUtils.validateInput(message, 'message');
       cryptoUtils.validatePassphrase(passphrase);
-      if (!message) throw new Error('Message cannot be empty');
       
       dataToEncrypt = new TextEncoder().encode(message);
 
-      // Compress large messages
       if (typeof pako !== 'undefined' && message.length > CONFIG.COMPRESSION_THRESHOLD) {
         dataToEncrypt = pako.deflate(dataToEncrypt, { level: 6 });
       }
 
-      // Generate cryptographic salt and IV
       salt = crypto.getRandomValues(new Uint8Array(CONFIG.SALT_LENGTH));
       iv = crypto.getRandomValues(new Uint8Array(CONFIG.IV_LENGTH));
 
@@ -430,7 +700,6 @@ const cryptoUtils = {
       aesKey = derivedAesKey;
       hmacKey = derivedHmacKey;
 
-      // Encrypt with AES-GCM
       const encrypted = await crypto.subtle.encrypt(
         { name: 'AES-GCM', iv, tagLength: 128 },
         aesKey,
@@ -439,14 +708,12 @@ const cryptoUtils = {
 
       const ciphertext = new Uint8Array(encrypted);
       
-      // Calculate HMAC for integrity verification
       const hmac = await crypto.subtle.sign(
         'HMAC',
         hmacKey,
         ciphertext
       );
 
-      // Combine all components
       const combined = new Uint8Array([
         ...salt,
         ...iv,
@@ -454,14 +721,12 @@ const cryptoUtils = {
         ...new Uint8Array(hmac)
       ]);
       
-      // Return as base64
       const result = btoa(String.fromCharCode(...combined));
       return result;
     } catch (error) {
       console.error('Encryption error:', error);
       throw new Error('Encryption failed: ' + error.message);
     } finally {
-      // Securely wipe sensitive data
       if (dataToEncrypt) cryptoUtils.secureWipe(dataToEncrypt);
       if (salt) cryptoUtils.secureWipe(salt);
       if (iv) cryptoUtils.secureWipe(iv);
@@ -469,6 +734,9 @@ const cryptoUtils = {
   },
 
   decryptMessage: async (encryptedBase64, passphrase) => {
+    // Aplicar rate limiting antes de la desencriptación
+    securityUtils.checkRateLimit();
+    
     let decrypted = null;
     let salt = null;
     let iv = null;
@@ -476,29 +744,31 @@ const cryptoUtils = {
     let hmacKey = null;
     
     try {
-      if (!encryptedBase64 || !passphrase) throw new Error('Encrypted data and passphrase are required');
+      if (!encryptedBase64 || !passphrase) {
+        throw new Error('Encrypted data and passphrase are required');
+      }
       
-      // Convert base64 to Uint8Array
+      // Validar formato base64
+      if (!/^[a-zA-Z0-9+/]*={0,2}$/.test(encryptedBase64)) {
+        throw new Error('Invalid encrypted data format');
+      }
+      
       const encryptedData = Uint8Array.from(atob(encryptedBase64), c => c.charCodeAt(0));
       
-      // Validate minimum length
       const minLength = CONFIG.SALT_LENGTH + CONFIG.IV_LENGTH + CONFIG.HMAC_LENGTH;
       if (encryptedData.length < minLength) {
         throw new Error('Invalid encrypted data: too short');
       }
       
-      // Extract components
       salt = encryptedData.slice(0, CONFIG.SALT_LENGTH);
       iv = encryptedData.slice(CONFIG.SALT_LENGTH, CONFIG.SALT_LENGTH + CONFIG.IV_LENGTH);
       const ciphertext = encryptedData.slice(CONFIG.SALT_LENGTH + CONFIG.IV_LENGTH, -CONFIG.HMAC_LENGTH);
       const hmac = encryptedData.slice(-CONFIG.HMAC_LENGTH);
 
-      // Derive keys
       const { aesKey: derivedAesKey, hmacKey: derivedHmacKey } = await cryptoUtils.deriveKeys(passphrase, salt);
       aesKey = derivedAesKey;
       hmacKey = derivedHmacKey;
 
-      // Verify HMAC before decryption
       const isValid = await crypto.subtle.verify(
         'HMAC',
         hmacKey,
@@ -507,17 +777,16 @@ const cryptoUtils = {
       );
 
       if (!isValid) {
+        securityUtils.incrementAttempts();
         throw new Error('Integrity check failed: Data may have been tampered with');
       }
 
-      // Decrypt the message
       decrypted = await crypto.subtle.decrypt(
         { name: 'AES-GCM', iv, tagLength: 128 },
         aesKey,
         ciphertext
       );
 
-      // Decompress if necessary
       let decompressed;
       try {
         if (typeof pako !== 'undefined') {
@@ -529,15 +798,21 @@ const cryptoUtils = {
         decompressed = new Uint8Array(decrypted);
       }
       
-      // Convert to string
       const result = new TextDecoder().decode(decompressed);
-
+      
+      // Resetear rate limiting en éxito
+      securityUtils.resetRateLimit();
+      
       return result;
     } catch (error) {
+      // Incrementar contador en error (excepto para errores de validación)
+      if (!error.message.includes('required') && !error.message.includes('format')) {
+        securityUtils.incrementAttempts();
+      }
+      
       console.error('Decryption error:', error);
       throw new Error('Decryption failed: ' + error.message);
     } finally {
-      // Securely wipe sensitive data
       if (decrypted) cryptoUtils.secureWipe(decrypted);
       if (salt) cryptoUtils.secureWipe(salt);
       if (iv) cryptoUtils.secureWipe(iv);
@@ -547,17 +822,15 @@ const cryptoUtils = {
 
 // Enhanced UI controller with better accessibility and user feedback
 const ui = {
-  sanitizeHTML: (str) => {
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-  },
+  // Usar la nueva sanitización robusta
+  sanitizeHTML: securityUtils.sanitizeHTML,
 
   showPlaceholder: (message, iconClass) => {
+    const safeMessage = securityUtils.sanitizeHTML(message);
     dom.messages.innerHTML = `
       <div class="message-placeholder">
         <i class="fas ${iconClass}" aria-hidden="true"></i>
-        <p>${ui.sanitizeHTML(message)}</p>
+        <p>${safeMessage}</p>
       </div>
     `;
   },
@@ -571,15 +844,34 @@ const ui = {
     const messageId = 'msg-' + Date.now();
     const messageEl = document.createElement('div');
     messageEl.className = `message ${isSent ? 'sent' : ''}`;
-    messageEl.innerHTML = `
-      <div class="message-content" id="${messageId}" role="alert" aria-live="polite">
-        ${ui.sanitizeHTML(content)}
-        <button class="copy-icon" data-message-id="${messageId}" aria-label="Copy message">
-          <i class="fas fa-copy"></i>
-        </button>
-      </div>
-      <div class="message-time">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-    `;
+    
+    // Crear elementos de forma segura
+    const messageContent = document.createElement('div');
+    messageContent.className = 'message-content';
+    messageContent.id = messageId;
+    messageContent.setAttribute('role', 'alert');
+    messageContent.setAttribute('aria-live', 'polite');
+
+    // Usar textContent para evitar XSS
+    const messageText = document.createElement('span');
+    messageText.className = 'message-text';
+    messageText.textContent = content;
+
+    const copyButton = document.createElement('button');
+    copyButton.className = 'copy-icon';
+    copyButton.setAttribute('data-message-id', messageId);
+    copyButton.setAttribute('aria-label', 'Copy message');
+    copyButton.innerHTML = '<i class="fas fa-copy"></i>';
+
+    messageContent.appendChild(messageText);
+    messageContent.appendChild(copyButton);
+
+    const messageTime = document.createElement('div');
+    messageTime.className = 'message-time';
+    messageTime.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    messageEl.appendChild(messageContent);
+    messageEl.appendChild(messageTime);
 
     appState.messageHistory.push({
       content,
@@ -587,7 +879,6 @@ const ui = {
       timestamp: new Date()
     });
 
-    // Limit to 20 messages to prevent performance issues
     if (dom.messages.children.length >= 20) {
       dom.messages.removeChild(dom.messages.firstChild);
     }
@@ -595,19 +886,13 @@ const ui = {
     dom.messages.appendChild(messageEl);
     dom.messages.scrollTop = dom.messages.scrollHeight;
 
-    // Enable export button if there are messages
     dom.exportHistory.disabled = appState.messageHistory.length === 0;
     
-    // Add event listener for copy button
-    const copyButton = messageEl.querySelector('.copy-icon');
-    if (copyButton) {
-      copyButton.addEventListener('click', () => {
-        const messageContent = document.getElementById(messageId).textContent;
-        navigator.clipboard.writeText(messageContent).then(() => {
-          ui.showToast('Message copied to clipboard', 'success');
-        });
+    copyButton.addEventListener('click', () => {
+      navigator.clipboard.writeText(content).then(() => {
+        ui.showToast('Message copied to clipboard', 'success');
       });
-    }
+    });
   },
 
   generateQR: async (data) => {
@@ -643,7 +928,6 @@ const ui = {
           const circleX = qrSize / 2;
           const circleY = qrSize / 2;
 
-          // Draw HushBox logo in center
           ctx.beginPath();
           ctx.arc(circleX, circleY, circleRadius, 0, Math.PI * 2);
           ctx.fillStyle = '#000000';
@@ -656,16 +940,13 @@ const ui = {
           ctx.fillText('HUSH', circleX, circleY - circleRadius * 0.2);
           ctx.fillText('BOX', circleX, circleY + circleRadius * 0.3);
 
-          // Draw to main canvas
           const qrCtx = dom.qrCanvas.getContext('2d');
           qrCtx.clearRect(0, 0, qrSize, qrSize);
           qrCtx.drawImage(tempCanvas, 0, 0, qrSize, qrSize);
 
-          // Show QR container
           dom.qrContainer.classList.remove('hidden');
           dom.qrContainer.classList.add('no-print');
           
-          // Set generation time
           dom.qrTime.textContent = new Date().toLocaleTimeString();
           
           resolve();
@@ -695,11 +976,9 @@ const ui = {
     dom.passphraseModal.style.display = 'flex';
     dom.modalPassphrase.focus();
     
-    // Show scan time
     document.getElementById('scan-time').textContent = 
       new Date().toLocaleTimeString();
     
-    // Add scan animation
     if (!document.querySelector('.scan-beam')) {
       const beam = document.createElement('div');
       beam.className = 'scan-beam';
@@ -724,7 +1003,6 @@ const ui = {
       dom.detectionBox.appendChild(dom.scanLine);
     }
 
-    // Proportional size to container
     const size = Math.min(
       dom.cameraContainer.clientWidth, 
       dom.cameraContainer.clientHeight
@@ -758,6 +1036,7 @@ const ui = {
   },
 
   showToast: (message, type = 'info') => {
+    const safeMessage = securityUtils.sanitizeHTML(message);
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
     toast.setAttribute('role', 'alert');
@@ -770,7 +1049,7 @@ const ui = {
 
     toast.innerHTML = `
       <i class="${icon}"></i>
-      <span>${ui.sanitizeHTML(message)}</span>
+      <span>${safeMessage}</span>
     `;
 
     dom.toastContainer.appendChild(toast);
@@ -805,6 +1084,10 @@ const ui = {
       ui.showPlaceholder('Message history cleared', 'fa-trash-alt');
       appState.messageHistory = [];
       dom.exportHistory.disabled = true;
+      
+      // Limpiar también el almacenamiento encriptado
+      localStorage.removeItem(CONFIG.HISTORY_STORAGE_KEY);
+      
       ui.showToast('Message history cleared', 'success');
     }
   },
@@ -817,7 +1100,8 @@ const ui = {
   },
 
   showError: (element, message) => {
-    element.textContent = ui.sanitizeHTML(message);
+    const safeMessage = securityUtils.sanitizeHTML(message);
+    element.textContent = safeMessage;
     element.classList.remove('hidden');
     setTimeout(() => {
       element.classList.add('hidden');
@@ -871,6 +1155,11 @@ const csvUtils = {
   },
 
   parseCSV: (csvData) => {
+    // Validar entrada
+    if (typeof csvData !== 'string') {
+      throw new Error('CSV data must be a string');
+    }
+
     const lines = csvData
       .replace(/\r\n/g, '\n')
       .replace(/\r/g, '\n')
@@ -896,10 +1185,10 @@ const csvUtils = {
         continue;
       }
 
-      const type = fields[0];
-      const content = fields[1].replace(/\\n/g, '\n');
-      const date = fields[2];
-      const time = fields[3];
+      const type = securityUtils.sanitizeHTML(fields[0]);
+      const content = securityUtils.sanitizeHTML(fields[1].replace(/\\n/g, '\n'));
+      const date = securityUtils.sanitizeHTML(fields[2]);
+      const time = securityUtils.sanitizeHTML(fields[3]);
 
       let timestamp;
       try {
@@ -927,14 +1216,18 @@ const csvUtils = {
   },
 
   generateCSV: (messages) => {
+    if (!Array.isArray(messages)) {
+      throw new Error('Messages must be an array');
+    }
+
     const header = ['Type', 'Message', 'Date', 'Time'];
     const rows = messages.map(msg => {
       const type = msg.isSent ? 'Sent' : 'Received';
-      const safeMessage = `"${msg.content
+      const safeMessage = `"${securityUtils.sanitizeHTML(msg.content)
         .replace(/"/g, '""')
         .replace(/\n/g, '\\n')}"`;
-      const date = msg.timestamp.toLocaleDateString();
-      const time = msg.timestamp.toLocaleTimeString();
+      const date = securityUtils.sanitizeHTML(msg.timestamp.toLocaleDateString());
+      const time = securityUtils.sanitizeHTML(msg.timestamp.toLocaleTimeString());
 
       return [type, safeMessage, date, time];
     });
@@ -947,8 +1240,6 @@ const csvUtils = {
 
 // Enhanced event handlers with better error handling and performance
 const handlers = {
-  decryptAttempts: 0,
-
   handleEncrypt: async (e) => {
     e.preventDefault();
     if (appState.isEncrypting) return;
@@ -962,6 +1253,15 @@ const handlers = {
       return;
     }
 
+    // Validación robusta de entrada
+    try {
+      securityUtils.validateInput(message, 'message');
+      securityUtils.validateInput(passphrase, 'passphrase');
+    } catch (error) {
+      ui.showToast(error.message, 'error');
+      return;
+    }
+
     appState.isEncrypting = true;
     ui.toggleButton(dom.sendButton, true, '<span class="loader"></span> Encrypting...');
 
@@ -969,15 +1269,14 @@ const handlers = {
       const encrypted = await cryptoUtils.encryptMessage(message, passphrase);
       appState.lastEncryptedData = encrypted;
       await ui.generateQR(encrypted);
-      ui.displayMessage(`Encrypted message: ${ui.sanitizeHTML(encrypted.slice(0, 40))}...`, true);
+      ui.displayMessage(`Encrypted message: ${securityUtils.sanitizeHTML(encrypted.slice(0, 40))}...`, true);
       ui.showToast('Message encrypted successfully', 'success');
 
-      // Clear inputs
       dom.messageInput.value = '';
       dom.passphrase.value = '';
       ui.updatePasswordStrength('');
     } catch (error) {
-      ui.displayMessage(error.message);
+      ui.displayMessage(securityUtils.sanitizeHTML(error.message));
       ui.showToast(error.message, 'error');
       ui.showError(dom.passphraseError, error.message);
     } finally {
@@ -995,19 +1294,22 @@ const handlers = {
     }
 
     try {
+      // Validación de entrada
+      securityUtils.validateInput(passphrase, 'passphrase');
+      
       const decrypted = await cryptoUtils.decryptMessage(
         appState.lastEncryptedData, 
         passphrase
       );
       
-      ui.displayMessage(`Decrypted: ${ui.sanitizeHTML(decrypted)}`);
+      ui.displayMessage(`Decrypted: ${securityUtils.sanitizeHTML(decrypted)}`);
       ui.hidePassphraseModal();
       ui.showToast('Message decrypted', 'success');
       
     } catch (error) {
       console.error('Decryption failed:', error);
-      ui.showToast('Decryption failed: Invalid passphrase', 'error');
-      ui.showError(dom.modalPassphraseError, 'Invalid passphrase');
+      ui.showToast('Decryption failed: ' + error.message, 'error');
+      ui.showError(dom.modalPassphraseError, error.message);
     }
   },
 
@@ -1056,10 +1358,8 @@ const handlers = {
               scanning = false;
               clearTimeout(timeoutId);
               
-              // Extract clean QR data
               const qrData = qrCode.data.trim();
               
-              // Verify if it's a valid HushBox QR
               if (qrData.startsWith('HBX:') || qrData.length > 100) {
                 appState.lastEncryptedData = qrData;
                 handlers.stopCamera();
@@ -1067,7 +1367,7 @@ const handlers = {
                 ui.showPassphraseModal();
               } else {
                 ui.showToast('Invalid HushBox QR', 'warning');
-                scanning = true; // Continue scanning
+                scanning = true;
               }
             }
           } catch (e) {
@@ -1076,7 +1376,6 @@ const handlers = {
           requestAnimationFrame(scanFrame);
         };
         
-        // Start scan loop
         dom.cameraPreview.onplaying = () => {
           requestAnimationFrame(scanFrame);
         };
@@ -1276,8 +1575,15 @@ const handlers = {
     }
 
     try {
+      // Validar passphrase
+      securityUtils.validateInput(passphrase, 'passphrase');
+      
       const csvContent = csvUtils.generateCSV(appState.messageHistory);
-      const encryptedCsv = await cryptoUtils.encryptMessage(csvContent, passphrase);
+      const encryptedCsv = await historyCrypto.encryptHistory(
+        appState.messageHistory, 
+        passphrase
+      );
+      
       const blob = new Blob([encryptedCsv], { type: 'text/csv;charset=utf-8' });
       const link = document.createElement('a');
       const url = URL.createObjectURL(blob);
@@ -1312,22 +1618,24 @@ const handlers = {
       const reader = new FileReader();
       reader.onload = async (e) => {
         try {
+          // Validar passphrase
+          securityUtils.validateInput(passphrase, 'passphrase');
+          
           const encryptedData = e.target.result;
-          const decryptedCsv = await cryptoUtils.decryptMessage(encryptedData, passphrase);
+          const history = await historyCrypto.decryptHistory(encryptedData, passphrase);
 
-          const messages = csvUtils.parseCSV(decryptedCsv);
-          if (messages.length === 0) {
+          if (history.length === 0) {
             ui.showToast('No messages found in the imported file', 'warning');
             return;
           }
 
-          appState.messageHistory.push(...messages);
+          appState.messageHistory.push(...history);
           dom.messages.innerHTML = '';
-          messages.forEach(msg => {
+          history.forEach(msg => {
             ui.displayMessage(msg.content, msg.isSent);
           });
 
-          ui.showToast(`Imported ${messages.length} messages`, 'success');
+          ui.showToast(`Imported ${history.length} messages`, 'success');
           dom.exportHistory.disabled = false;
         } catch (error) {
           console.error('Error importing history:', error);
@@ -1347,6 +1655,7 @@ const handlers = {
     appState.lastEncryptedData = null;
     dom.qrContainer.classList.add('hidden');
     ui.updatePasswordStrength('');
+    securityUtils.resetRateLimit();
     ui.showToast('Sensitive data cleared', 'success');
   },
 
@@ -1395,7 +1704,7 @@ const handlers = {
           const pass = cryptoUtils.generateSecurePass();
           dom.passphrase.value = pass;
           ui.updatePasswordStrength(pass);
-          ui.displayMessage(`Generated password: ${ui.sanitizeHTML(pass)}`, true);
+          ui.displayMessage(`Generated password: ${securityUtils.sanitizeHTML(pass)}`, true);
           ui.showToast('Secure password generated', 'success');
         } catch (error) {
           ui.showToast(`Error generating password: ${error.message}`, 'error');
@@ -1468,7 +1777,6 @@ const handlers = {
       
       dom.resetSettings.addEventListener('click', resetSettings);
       
-      // Add PWA installation prompt
       window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         ui.showToast('Install HushBox for a better experience', 'info');
@@ -1521,10 +1829,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }, 1000);
     }
 
-    // Cargar configuración guardada
     loadSettings();
     
-    // Configurar auto-borrado si está habilitado
     if (CONFIG.AUTO_WIPE > 0) {
       appState.wipeTimer = setTimeout(() => {
         handlers.clearSensitiveData();

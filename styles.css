@@ -8,6 +8,7 @@
  *  Core Features: Crypto-grade UI | Accessibility AA+ | Zero-dependency
  *  MikePetovick Design Signature: Dark theme with biometric-inspired accents
  *  HushBox Technology Stack: WebCrypto API | Military-grade encryption
+ *  CORREGIDO Y MEJORADO
  * 
  * SPDX-License-Identifier: AGPL-3.0-only 
  * Copyright (C) 2025 HushBox Enterprise 
@@ -181,6 +182,53 @@ body::before {
 .security-level.low {
     background: rgba(255, 77, 77, 0.15);
     color: var(--security-level-low);
+}
+
+/* Indicador de Rate Limiting */
+.rate-limit-indicator {
+    background: rgba(255, 77, 77, 0.1);
+    border: 1px solid var(--error-color);
+    border-radius: 8px;
+    padding: 0.8rem;
+    margin: 0.5rem 0;
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--error-color);
+    animation: pulse-warning 2s infinite;
+}
+
+@keyframes pulse-warning {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* Indicador de seguridad mejorado */
+.security-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    margin: 0.5rem 0;
+}
+
+.security-indicator.high {
+    background: rgba(0, 204, 153, 0.1);
+    color: var(--security-level-high);
+    border: 1px solid var(--security-level-high);
+}
+
+.security-indicator.medium {
+    background: rgba(255, 204, 0, 0.1);
+    color: var(--security-level-medium);
+    border: 1px solid var(--security-level-medium);
+}
+
+.security-indicator.low {
+    background: rgba(255, 77, 77, 0.1);
+    color: var(--security-level-low);
+    border: 1px solid var(--security-level-low);
 }
 
 /* Main Container */
@@ -558,6 +606,12 @@ body::before {
     opacity: 0.3;
 }
 
+.message-text {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    user-select: text;
+}
+
 .message-time {
     font-size: clamp(0.7rem, 1.3vw, 0.8rem);
     color: rgba(255, 255, 255, 0.8);
@@ -897,6 +951,10 @@ body::before {
     font-size: 0.8rem;
     margin-top: 0.4rem;
     display: block;
+    background: rgba(255, 77, 77, 0.1);
+    padding: 0.5rem;
+    border-radius: 4px;
+    border-left: 3px solid var(--error-color);
 }
 
 .passphrase-modal #modal-rescan-button {
@@ -1227,6 +1285,25 @@ body::before {
     border-radius: inherit;
 }
 
+.security-loading {
+    position: relative;
+    opacity: 0.7;
+}
+
+.security-loading::after {
+    content: "Processing securely...";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--section-bg);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    color: var(--primary-color);
+    z-index: 10;
+}
+
 .toast {
     position: fixed;
     bottom: 1.5rem;
@@ -1283,6 +1360,10 @@ body::before {
     font-size: 0.8rem;
     margin-top: 0.4rem;
     display: block;
+    background: rgba(255, 77, 77, 0.1);
+    padding: 0.5rem;
+    border-radius: 4px;
+    border-left: 3px solid var(--error-color);
 }
 
 .copy-icon {
@@ -1396,6 +1477,35 @@ body::before {
     }
 }
 
+@media (prefers-contrast: high) {
+    .message-content {
+        border: 2px solid var(--primary-color);
+    }
+    
+    .btn-primary {
+        border: 2px solid #000000;
+    }
+    
+    .input-group input:focus,
+    .input-group textarea:focus {
+        outline: 3px solid var(--primary-color);
+        outline-offset: 2px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .scan-beam,
+    .scan-line {
+        display: none;
+    }
+}
+
 @media print {
     .no-print, #qr-container, .message-container {
         display: none !important;
@@ -1406,13 +1516,6 @@ body::before {
         color: black;
         box-shadow: none;
         border: 1px solid #ccc;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-        animation: none !important;
-        transition: none !important;
     }
 }
 
@@ -1587,5 +1690,17 @@ body::before {
     .feature-item {
         min-height: auto;
         padding: 1rem 0.8rem;
+    }
+
+    .rate-limit-indicator {
+        font-size: 0.8rem;
+        padding: 0.6rem;
+    }
+    
+    .security-indicator {
+        font-size: 0.75rem;
+        flex-direction: column;
+        gap: 0.3rem;
+        text-align: center;
     }
 }
